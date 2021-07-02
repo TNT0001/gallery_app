@@ -1,0 +1,65 @@
+{{define "form"}}
+<div class="row">
+  <div class="col-md-4 col-md-offset-4">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Sign Up Now!</h3>
+      </div>
+      <div class="panel-body">{{template "signupForm"}}</div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+<!---->
+
+{{define "signupForm"}}
+<form action="/user/signup" method="POST">
+  <div class="form-group">
+    <label for="username"> Your Name </label>
+    <input type="text" name="username" class="form-control" id="username"
+    placeholder="{{if .Alert}} {{if ne .Alert.Level "success"}} {{.Username}}
+    {{end}} {{else}} Your Full Name {{end}}" />
+  </div>
+  <div class="form-group">
+    <label for="email"></label>
+    <input type="email" name="email" class="form-control" id="email"
+    placeholder=" {{if .Alert}} {{if ne .Alert.Level "success"}} {{.Email}}
+    {{end}} {{else}} Email {{end}}"/>
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input
+      type="password"
+      name="password"
+      class="form-control"
+      id="password"
+      placeholder="{{.Password}}"
+    />
+  </div>
+  <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+{{end}}
+
+<!---->
+
+{{define "signup"}}
+<!DOCTYPE html>
+<html lang="en">
+  {{template "header" .}}
+  <body>
+    {{template "navbar" .}}
+    <div class="container-fluid">
+      {{if .Alert}} {{template "alert" .}} {{end}}
+      <!---->
+      {{template "form"}}
+      <!---->
+      {{template "footer" .}}
+    </div>
+
+    <!-- jquery & Bootstrap JS -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </body>
+</html>
+{{end}}
