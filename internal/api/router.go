@@ -57,14 +57,18 @@ func Initialize(r *router) {
 		userAPi.GET("/login", userHandler.LoginPage)
 		userAPi.POST("/login", userHandler.Login)
 		userAPi.Use(middleware.AuthorizeJWT(userRepo))
+		userAPi.GET("/logout", userHandler.LogOut)
 	}
 	galleryApi := r.Engine.Group("/gallery")
-	galleryApi.Use(middleware.AuthorizeJWT(userRepo))
+	galleryApi.Use(middleware.AuthorizeJWT(userRepo), middleware.LoginOnly())
 	{
+		galleryApi.GET("/", galleryHandler.ShowALlGalleries)
 		galleryApi.GET("/new", galleryHandler.New)
 		galleryApi.POST("/new", galleryHandler.Create)
 		galleryApi.GET("/:id", galleryHandler.Show)
 		galleryApi.GET("/:id/edit", galleryHandler.Edit)
+		galleryApi.POST("/:id/update", galleryHandler.Update)
+		galleryApi.POST("/:id/delete", galleryHandler.Delete)
 	}
 
 }

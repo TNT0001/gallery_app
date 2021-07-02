@@ -9,8 +9,8 @@ var GalleriesTableName = "galleries"
 
 // Galleries struct
 type Galleries struct {
-	UserID uint   `gorm:"not_null;index"`
-	Title  string `gorm:"not_null"`
+	UserID uint   `gorm:"column:user_id; not_null; index"`
+	Title  string `gorm:"column:title; not_null"`
 	gorm.Model
 }
 

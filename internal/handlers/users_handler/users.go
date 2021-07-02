@@ -53,24 +53,18 @@ func (u *userHandler) Login(c *gin.Context) {
 	err := c.ShouldBind(&req)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
+		c.HTML(http.StatusBadRequest, "login", dto.UserLoginResponse{})
 		return
 	}
 
 	token, err := u.Services.Login(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
+		c.HTML(http.StatusBadRequest, "login", dto.UserLoginResponse{})
 		return
 	}
 	c.SetCookie("token", token, 60*60*24, "/", "127.0.0.1", true, true)
 
-	c.JSON(http.StatusOK, gin.H{
-		"login": "ok",
-	})
+	c.HTML(http.StatusOK, "home", dto.UserLoginResponse{Login: true})
 }
 
 func (u *userHandler) Update(c *gin.Context) {
@@ -78,9 +72,7 @@ func (u *userHandler) Update(c *gin.Context) {
 	err := c.ShouldBind(&req)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
+		c.HTML(http.StatusBadRequest, "home", dto.UserUpdateResponse{Login: true})
 		return
 	}
 
@@ -89,38 +81,36 @@ func (u *userHandler) Update(c *gin.Context) {
 
 	err = u.Services.UpdateUser(oldUser, req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
+		c.HTML(http.StatusBadRequest, "home", dto.UserUpdateResponse{Login: true})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"ok": true,
-	})
+	c.HTML(http.StatusBadRequest, "login", dto.UserUpdateResponse{Login: true})
 }
 
 func (u *userHandler) Delete(c *gin.Context) {
 	user, exists := c.Get("user")
 	if !exists {
-		c.JSON(http.StatusBadRequest, nil)
-		return
+		c.HTML(http.StatusBadRequest, "login", dto.UserUpdateResponse{})
 	}
 	oldUser, ok := user.(entity.Users)
 	if !ok {
-		c.JSON(http.StatusBadRequest, nil)
+		c.HTML(http.StatusBadRequest, "login", dto.UserUpdateResponse{})
 		return
 	}
 
 	err := u.Services.DeleteUser(oldUser)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
+		c.HTML(http.StatusBadRequest, "home", dto.UserUpdateResponse{Login: true})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"ok": true,
-	})
+	c.HTML(http.StatusOK, "home", dto.UserUpdateResponse{})
+}
+
+func (u *userHandler) LogOut(c *gin.Context) {
+	c.Set("user", nil)
+	c.HTML(http.StatusOK, "home", struct {
+		Login bool
+	}{Login: false})
 }

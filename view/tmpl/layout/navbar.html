@@ -22,10 +22,17 @@
         <li><a href="/">Home</a></li>
         <li><a href="/contact">Contact</a></li>
         <li><a href="/faq">Faq</a></li>
+        {{if .Login}}
+        <li><a href="/gallery">Galleries</a></li>
+        {{end}}
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        {{if not .Login}}
         <li><a href="/user/login">Log In</a></li>
         <li><a href="/user/signup">Sign Up</a></li>
+        {{else}}
+        <li><a href="/user/logout">Log out</a></li>
+        {{end}}
       </ul>
     </div>
   </div>

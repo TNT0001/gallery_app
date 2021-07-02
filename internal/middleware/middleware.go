@@ -31,3 +31,15 @@ func AuthorizeJWT(repo repo.UserRepositoryInterface) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func LoginOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		_, exists := c.Get("user")
+		if !exists {
+			c.Redirect(http.StatusFound, "/user/login")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}

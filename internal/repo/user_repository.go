@@ -54,12 +54,13 @@ func (u *userRepo) Delete(id uint) error {
 	if id < 0 {
 		return models.ErrInvalidID
 	}
-	user := entity.Users{ID: id}
+	user := entity.Users{}
+	user.ID = id
 	err := u.DB.First(&user).Error
 	if err != nil {
 		return err
 	}
 
-	err = u.DB.Delete(&entity.Users{ID: id}).Error
+	err = u.DB.Delete(user).Error
 	return err
 }

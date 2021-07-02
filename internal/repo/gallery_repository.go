@@ -10,6 +10,7 @@ type GalleryRepositoryInterface interface {
 	ByID(id uint) (*entity.Galleries, error)
 	Update(*entity.Galleries) error
 	Delete(id uint) error
+	ByUserID(userID uint) ([]entity.Galleries, error)
 }
 
 type galleryRepo struct {
@@ -43,6 +44,19 @@ func (u *galleryRepo) Update(gallery *entity.Galleries) error {
 }
 
 func (u *galleryRepo) Delete(id uint) error {
-	err := u.DB.Delete(&entity.Galleries{Model: gorm.Model{ID: id}}).Error
+	gallery := entity.Galleries{}
+	gallery.ID = id
+	err := u.DB.Unscoped().Delete(&gallery).Error
 	return err
+}
+
+func (u *galleryRepo) ByUserID(userID uint) ([]entity.Galleries, error) {
+	galleries := make([]entity.Galleries, 0)
+
+	err := u.DB.Find(&galleries, "galleries.user_id =?", userID).Error
+	if err != nil {
+		return []entity.Galleries{}, err
+	}
+
+	return galleries, nil
 }
