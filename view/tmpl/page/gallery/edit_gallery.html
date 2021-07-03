@@ -1,4 +1,4 @@
-{{define "editYield"}}
+{{define "content"}}
 <div class="row">
   <div class="col-md-10 col-md-offset-1">
   <h2>Edit your gallery</h3>
@@ -94,28 +94,3 @@
 {{define "galleryImages"}}
 <p>Coming soon...</p>
 {{end}}
-
-<!---->
-
-{{define "edit"}}
-    <!DOCTYPE html>
-    <html lang="en">
-      {{template "header" .}}
-      <body>
-        {{template "navbar" .}}
-        <div class="container-fluid">
-          {{if .Alert}} {{template "alert" .}} {{end}}
-          <!---->
-          {{template "editYield" .}}
-          <!---->
-          {{template "footer" .}}
-        </div>
-
-        <!-- jquery & Bootstrap JS -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-      </body>
-    </html>
-    {{end}}
-  </div>
-</form>

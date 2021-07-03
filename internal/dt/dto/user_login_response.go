@@ -1,6 +1,6 @@
 package dto
 
 type UserLoginResponse struct {
-	Login bool
-	Alert Alert
+	Token string
+	BaseResponse
 }

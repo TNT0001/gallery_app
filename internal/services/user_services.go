@@ -1,14 +1,14 @@
 package services
 
 import (
-	"log"
-
+	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"tung.gallery/internal/dt/dto"
 	"tung.gallery/internal/dt/entity"
 	"tung.gallery/internal/middleware"
 	"tung.gallery/internal/repo"
 	"tung.gallery/pkg/models"
+	"tung.gallery/pkg/utils"
 )
 
 const (
@@ -20,11 +20,11 @@ const (
 
 type UserServiceInterface interface {
 	CreateUser(dto.UserCreateRequest) (dto.UserCreateResponse, error)
-	UpdateUser(entity.Users, dto.UserUpdateRequest) error
-	Login(dto.UserLoginRequest) (string, error)
+	UpdateUser(entity.Users, dto.UserUpdateRequest) (dto.UserUpdateResponse, error)
+	Login(dto.UserLoginRequest) (dto.UserLoginResponse, error)
+	DeleteUser(*entity.Users) (dto.UserDeleteResponse, error)
 	FindUserById(uint) (*entity.Users, error)
 	FindUserByEmail(dto.UserLoginRequest) (*entity.Users, error)
-	DeleteUser(entity.Users) error
 }
 
 type userService struct {
@@ -41,21 +41,22 @@ func (s *userService) CreateUser(req dto.UserCreateRequest) (dto.UserCreateRespo
 	user, err := s.Repo.ByEmail(req.Email)
 
 	if err != nil && err != models.ErrNotFound {
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, err.Error())
 		return dto.UserCreateResponse{
-				Username: req.Username,
-				Email:    req.Email,
-				Password: req.Password,
-				Alert:    dto.Alert{Level: AlertLvlInfo, Message: err.Error()}},
+				Username:     req.Username,
+				Email:        req.Email,
+				Password:     req.Password,
+				BaseResponse: baseResponse},
 			models.ErrInternalServerError
 	}
 
 	if user.Email != "" {
-		log.Println(req)
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrEmailHasExist.Error())
 		return dto.UserCreateResponse{
-				Username: req.Username,
-				Email:    req.Email,
-				Password: req.Password,
-				Alert:    dto.Alert{Level: AlertLvlInfo, Message: "email has exists"}},
+				Username:     req.Username,
+				Email:        req.Email,
+				Password:     req.Password,
+				BaseResponse: baseResponse},
 			models.ErrEmailHasExist
 	}
 
@@ -69,31 +70,43 @@ func (s *userService) CreateUser(req dto.UserCreateRequest) (dto.UserCreateRespo
 	err = s.Repo.CreateUser(newUser)
 
 	if err != nil {
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrCreateUserFail.Error())
 		return dto.UserCreateResponse{
-			Username: req.Username,
-			Email:    req.Email,
-			Password: req.Password,
-			Alert:    dto.Alert{Level: AlertLvlInfo, Message: err.Error()}}, err
+			Username:     req.Username,
+			Email:        req.Email,
+			Password:     req.Password,
+			BaseResponse: baseResponse}, err
 	}
 
-	return dto.UserCreateResponse{Alert: dto.Alert{Level: AlertLvlSuccess, Message: "create user succes"}}, nil
+	baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrCreateUserFail.Error())
+	res := dto.UserCreateResponse{
+		Username:     req.Username,
+		Email:        req.Email,
+		Password:     req.Password,
+		BaseResponse: baseResponse}
+	return res, nil
 }
 
-func (s *userService) UpdateUser(oldUser entity.Users, req dto.UserUpdateRequest) error {
+func (s *userService) UpdateUser(oldUser entity.Users, req dto.UserUpdateRequest) (dto.UserUpdateResponse, error) {
 	if req.Password != "" {
 		err := bcrypt.CompareHashAndPassword([]byte(oldUser.Password), []byte(req.Password))
 		if err != bcrypt.ErrMismatchedHashAndPassword {
-			return err
+			baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInvalidPassword.Error())
+			return dto.UserUpdateResponse{
+				BaseResponse: baseResponse,
+			}, err
 		}
 	}
 
 	if req.Email != "" {
 		user, err := s.Repo.ByEmail(req.Email)
 		if err != nil && err != models.ErrNotFound {
-			return err
+			baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInternalServerError.Error())
+			return dto.UserUpdateResponse{BaseResponse: baseResponse}, err
 		}
 		if user.Email != "" {
-			return models.ErrEmailHasExist
+			baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrEmailHasExist.Error())
+			return dto.UserUpdateResponse{BaseResponse: baseResponse}, err
 		}
 	}
 
@@ -106,7 +119,17 @@ func (s *userService) UpdateUser(oldUser entity.Users, req dto.UserUpdateRequest
 	}
 
 	err := s.Repo.Update(user)
-	return err
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInternalServerError.Error())
+		return dto.UserUpdateResponse{BaseResponse: baseResponse}, err
+	}
+
+	baseResponse := utils.BaseResponse(false, AlertLvlSuccess, "update user success")
+	res := dto.UserUpdateResponse{
+		BaseResponse: baseResponse,
+	}
+
+	return res, nil
 }
 
 func (s *userService) FindUserById(id uint) (*entity.Users, error) {
@@ -135,21 +158,27 @@ func (s *userService) FindUserByEmail(req dto.UserLoginRequest) (*entity.Users, 
 	return user, nil
 }
 
-func (s *userService) DeleteUser(user entity.Users) error {
+func (s *userService) DeleteUser(user *entity.Users) (dto.UserDeleteResponse, error) {
 	err := s.Repo.Delete(user.ID)
-	return err
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInternalServerError.Error())
+		return dto.UserDeleteResponse{BaseResponse: baseResponse}, err
+	}
+
+	baseResponse := utils.BaseResponse(false, AlertLvlSuccess, "delete account success")
+	res := dto.UserDeleteResponse{BaseResponse: baseResponse}
+	return res, nil
 }
 
-func (s *userService) Login(req dto.UserLoginRequest) (string, error) {
+func (s *userService) Login(req dto.UserLoginRequest) (dto.UserLoginResponse, error) {
 	user, err := s.FindUserByEmail(req)
-	if err != nil {
-		return "", err
+	if errors.Is(err, models.ErrInvalidPassword) {
+		baseReponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInvalidID.Error())
+		return dto.UserLoginResponse{BaseResponse: baseReponse}, err
 	}
 
 	token := middleware.JWTAuthService().GenerateToken(user.Email, true)
-	if err != nil {
-		return "", err
-	}
 
-	return token, nil
+	res := dto.UserLoginResponse{Token: token}
+	return res, nil
 }

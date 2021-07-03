@@ -4,22 +4,24 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"tung.gallery/internal/dt/dto"
+	"tung.gallery/pkg/utils"
 )
 
 func Hello(c *gin.Context) {
-	c.HTML(http.StatusOK, "home", gin.H{
-		"PageName": "home",
-	})
+	login := utils.CheckLogin(c)
+	baseResponse := dto.BaseResponse{Login: login}
+	c.HTML(http.StatusOK, "home", baseResponse)
 }
 
 func Faq(c *gin.Context) {
-	c.HTML(http.StatusOK, "faq", gin.H{
-		"PageName": "faq",
-	})
+	login := utils.CheckLogin(c)
+	baseResponse := dto.BaseResponse{Login: login}
+	c.HTML(http.StatusOK, "faq", baseResponse)
 }
 
 func Contact(c *gin.Context) {
-	c.HTML(http.StatusOK, "contact", gin.H{
-		"PageName": "contact",
-	})
+	login := utils.CheckLogin(c)
+	baseResponse := dto.BaseResponse{Login: login}
+	c.HTML(http.StatusOK, "contact", baseResponse)
 }

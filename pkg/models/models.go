@@ -14,11 +14,31 @@ var (
 
 	// ErrInvalidID is returned when an invalid ID is provided
 	// to a method like Delete.
-	ErrInvalidID = errors.New("models: ID provided was invalid")
+	ErrInvalidID = errors.New("models: id provided was invalid")
 
-	ErrInvalidPassword     = errors.New("models: incorrect password provided")
+	// Error invalid password
+	ErrInvalidPassword = errors.New("models: incorrect password provided")
+
+	// Error internal server errors
 	ErrInternalServerError = errors.New("models: server error")
-	ErrEmailHasExist       = errors.New("model : email has exists")
+
+	// Error Email has exitst
+	ErrEmailHasExist = errors.New("model : email has exists")
+
+	// Error create new user fail
+	ErrCreateUserFail = errors.New("nodels : fail to create user")
+
+	// Error create new gallery
+	ErrCreateGalleryFail = errors.New("nodels : fail to create gallery")
+
+	// Error Fail to get gallery
+	ErrShowGalleryFail = errors.New("models : fail to get gallery")
+
+	// Error fail to update gallery
+	ErrorUpdateGalleryFail = errors.New("models : fail to update gallery")
+
+	// Error fail to delete gallery
+	ErrorDeleteGalleryFail = errors.New("models : fail to delete gallery")
 )
 
 func NewDB() *gorm.DB {

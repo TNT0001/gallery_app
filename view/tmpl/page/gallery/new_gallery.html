@@ -1,4 +1,4 @@
-{{define "gla"}}
+{{define "content"}}
 <div class="row">
   <div class="col-md-6 col-md-offset-3">
     <div class="panel panel-primary">
@@ -27,27 +27,4 @@
   </div>
   <button type="submit" class="btn btn-primary">Create</button>
 </form>
-{{end}}
-
-<!---->
-
-{{define "gallery"}}
-<!DOCTYPE html>
-<html lang="en">
-  {{template "header" .}}
-  <body>
-    {{template "navbar" .}}
-    <div class="container-fluid">
-      {{if .Alert}} {{template "alert" .}} {{end}}
-      <!---->
-      {{template "gla"}}
-      <!---->
-      {{template "footer" .}}
-    </div>
-
-    <!-- jquery & Bootstrap JS -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  </body>
-</html>
 {{end}}

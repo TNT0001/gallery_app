@@ -10,6 +10,16 @@ import (
 	"tung.gallery/internal/dt/dto"
 	"tung.gallery/internal/dt/entity"
 	"tung.gallery/internal/services"
+	"tung.gallery/pkg/models"
+	"tung.gallery/pkg/utils"
+)
+
+var (
+	// Error invalid request
+	ErrInvalidRequest = errors.New("invalid request")
+
+	// Error Permisson request fail
+	ErrInvalidPermission = errors.New("invalid permission")
 )
 
 type galleryHandler struct {
@@ -20,164 +30,152 @@ func NewGalleryHandler(s services.GalleriesServiceInterface) *galleryHandler {
 	return &galleryHandler{Services: s}
 }
 
-func (g *galleryHandler) New(c *gin.Context) {
-	c.HTML(http.StatusOK, "home", struct {
-		Login bool
-	}{Login: true})
+func (g *galleryHandler) GetNewGalleryPage(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
+		return
+	}
+
+	baseResponse := dto.BaseResponse{Login: login}
+	c.HTML(http.StatusOK, "new_gallery", baseResponse)
 }
 
-func (g *galleryHandler) Create(c *gin.Context) {
+func (g *galleryHandler) NewGallery(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
+		return
+	}
+
 	req := dto.GalleryCreateRequest{}
 	err := c.ShouldBind(&req)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "home", dto.GalleryCreateResponse{
-			Login: true,
-			Alert: dto.Alert{
-				Level:   services.AlertLvlInfo,
-				Message: err.Error(),
-			},
+		baseResponse := utils.BaseResponse(login, services.AlertLvlInfo, ErrInvalidRequest.Error())
+		c.HTML(http.StatusBadRequest, "new_gallery", dto.GalleryCreateResponse{
+			BaseResponse: baseResponse,
 		})
 		return
 	}
 
-	u, exists := c.Get("user")
-	if !exists {
-		c.Redirect(http.StatusTemporaryRedirect, "/user/login")
-		return
-	}
-
-	user, ok := u.(*entity.Users)
-	if !ok {
-		c.Redirect(301, "/user/login")
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		c.Redirect(http.StatusFound, "/user/login")
 		return
 	}
 
 	res, err := g.Services.CreateGallery(user, req)
+	res.Login = login
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "home", res)
+		c.HTML(http.StatusInternalServerError, "new_gallery", res)
 		return
 	}
-	fmt.Println("\n", "\n", "\n", res, "\n", "\n")
 
 	url := fmt.Sprintf("/gallery/%d", res.ID)
-	c.Request.Method = http.MethodGet
-	c.Redirect(301, url)
+	c.Redirect(http.StatusFound, url)
 }
 
-func (g *galleryHandler) Show(c *gin.Context) {
+func (g *galleryHandler) GetGalleryPage(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
+		return
+	}
+
 	idString, ok := c.Params.Get("id")
 	if !ok {
-		c.HTML(http.StatusBadRequest, "home", dto.ShowGalleryResponse{
-			Login: true,
-		})
+		c.Redirect(http.StatusFound, "all_galleries")
 		return
 	}
 
 	id, err := strconv.ParseUint(idString, 10, 64)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "home", dto.ShowGalleryResponse{
-			Login: true,
-		})
+		c.Redirect(http.StatusFound, "all_galleries")
 		return
 	}
 
 	res, err := g.Services.ShowGallery(uint(id))
+	res.Login = login
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "home", res)
+		c.Redirect(http.StatusFound, "all_galleries")
 		return
 	}
 
-	c.HTML(http.StatusOK, "show", res)
+	c.HTML(http.StatusOK, "show_gallery", res)
 }
 
-func (g *galleryHandler) Edit(c *gin.Context) {
-	res, _, err := g.checkPermission(c)
-	if err != nil {
+func (g *galleryHandler) GetEditPage(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
 		return
 	}
 
-	c.HTML(http.StatusOK, "edit", res)
+	baseResponse, id, _, err := g.checkPermission(c)
+	baseResponse.Login = login
+	if err != nil {
+		c.HTML(http.StatusNonAuthoritativeInfo, "home", baseResponse)
+		return
+	}
+
+	gallery, err := g.Services.ShowGallery(uint(id))
+	if err != nil {
+		c.HTML(http.StatusNonAuthoritativeInfo, "home", baseResponse)
+		return
+	}
+
+	res := dto.GalleryEditResponse{Title: gallery.Title, ID: gallery.ID, BaseResponse: baseResponse}
+	c.HTML(http.StatusOK, "edit_gallery", res)
 }
 
-func (g *galleryHandler) checkPermission(c *gin.Context) (dto.ShowGalleryResponse, *entity.Users, error) {
-	idString, ok := c.Params.Get("id")
-	if !ok {
-		c.HTML(http.StatusBadRequest, "home", dto.ShowGalleryResponse{
-			Login: true,
-		})
-		return dto.ShowGalleryResponse{Login: true}, nil, errors.New("not ok")
+func (g *galleryHandler) EditGallery(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
+		return
 	}
 
-	id, err := strconv.ParseUint(idString, 10, 64)
+	res, _, user, err := g.checkPermission(c)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "home", dto.ShowGalleryResponse{Login: true})
-		return dto.ShowGalleryResponse{Login: true}, nil, err
-	}
-
-	res, err := g.Services.ShowGallery(uint(id))
-	if err != nil {
-		c.HTML(http.StatusInternalServerError, "home", res)
-		return dto.ShowGalleryResponse{Login: true}, nil, err
-	}
-
-	u, exists := c.Get("user")
-	if !exists {
-		c.Redirect(http.StatusTemporaryRedirect, "/user/login")
-		return dto.ShowGalleryResponse{
-			Login: true,
-		}, nil, errors.New("not ok")
-	}
-
-	user, ok := u.(*entity.Users)
-	if !ok {
-		c.Redirect(301, "/user/login")
-		return dto.ShowGalleryResponse{
-			Login: true,
-		}, nil, errors.New("not ok")
-	}
-
-	if res.UserID != user.ID {
-		c.HTML(http.StatusForbidden, "home", dto.Alert{Level: services.AlertLvlInfo, Message: "Don't have permission"})
-		return dto.ShowGalleryResponse{
-			Login: true,
-		}, nil, err
-	}
-	return res, user, nil
-}
-
-func (g *galleryHandler) Update(c *gin.Context) {
-	_, user, err := g.checkPermission(c)
-	if err != nil {
+		c.HTML(http.StatusNonAuthoritativeInfo, "home", res)
 		return
 	}
 
 	req := dto.GalleryUpdateRequest{}
 	err = c.ShouldBind(&req)
 	if err != nil {
-		c.HTML(http.StatusOK, "edit", dto.ShowGalleryResponse{
-			Login: true,
-		})
+		baseResponse := utils.BaseResponse(login, services.AlertLvlError, ErrInvalidRequest.Error())
+		c.HTML(http.StatusBadRequest, "edit_gallery", baseResponse)
 		return
 	}
 
 	resUpdate, err := g.Services.Update(user, req)
+	resUpdate.Login = login
 	if err != nil {
-		c.HTML(http.StatusForbidden, "edit", resUpdate)
+		c.HTML(http.StatusInternalServerError, "edit_gallery", resUpdate)
 		return
 	}
 
-	c.HTML(http.StatusOK, "edit", resUpdate)
+	c.HTML(http.StatusOK, "edit_gallery", resUpdate)
 }
 
 func (g *galleryHandler) Delete(c *gin.Context) {
-	res, _, err := g.checkPermission(c)
-	if err != nil {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
 		return
 	}
 
-	resDelete, err := g.Services.Delete(res.ID)
+	res, id, _, err := g.checkPermission(c)
 	if err != nil {
-		c.HTML(http.StatusForbidden, "home", resDelete)
+		c.HTML(http.StatusNonAuthoritativeInfo, "home", res)
+		return
+	}
+
+	resDelete, err := g.Services.Delete(uint(id))
+	resDelete.Login = login
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "edit_gallery", resDelete)
 		return
 	}
 
@@ -185,23 +183,58 @@ func (g *galleryHandler) Delete(c *gin.Context) {
 }
 
 func (g *galleryHandler) ShowALlGalleries(c *gin.Context) {
-	u, exists := c.Get("user")
-	if !exists {
-		c.Redirect(http.StatusTemporaryRedirect, "/user/login")
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
 		return
 	}
 
-	user, ok := u.(*entity.Users)
-	if !ok {
-		c.Redirect(301, "/user/login")
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		c.Redirect(http.StatusFound, "/user/login")
 		return
 	}
 
 	res, err := g.Services.GetAllGalleriesByUserID(user.ID)
+	res.Login = login
 	if err != nil {
-		c.HTML(http.StatusForbidden, "home", res)
+		c.HTML(http.StatusInternalServerError, "home", res.BaseResponse)
 		return
 	}
 
-	c.HTML(http.StatusOK, "index", res)
+	c.HTML(http.StatusOK, "all_galleries", res)
+}
+
+func (g *galleryHandler) checkPermission(c *gin.Context) (dto.BaseResponse, int, *entity.Users, error) {
+	idString, ok := c.Params.Get("id")
+	if !ok {
+		baseResponse := utils.BaseResponse(false, services.AlertLvlError, ErrInvalidRequest.Error())
+		return baseResponse, -1, nil, ErrInvalidRequest
+	}
+
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, services.AlertLvlError, ErrInvalidRequest.Error())
+		return baseResponse, -1, nil, ErrInvalidRequest
+	}
+
+	gallery, err := g.Services.ShowGallery(uint(id))
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, services.AlertLvlError, models.ErrInternalServerError.Error())
+		return baseResponse, -1, nil, models.ErrInternalServerError
+	}
+
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, services.AlertLvlError, utils.ErrUserNotFound.Error())
+		return baseResponse, -1, nil, utils.ErrUserNotFound
+	}
+
+	if gallery.UserID != user.ID {
+		baseResponse := utils.BaseResponse(false, services.AlertLvlError, ErrInvalidPermission.Error())
+		return baseResponse, -1, nil, utils.ErrUserNotFound
+	}
+
+	baseResponse := dto.BaseResponse{}
+	return baseResponse, id, user, nil
 }

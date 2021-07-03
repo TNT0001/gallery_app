@@ -8,6 +8,5 @@ type Gallrery struct {
 
 type UserGetAllGalleriesResponse struct {
 	Galleries []Gallrery
-	Login     bool
-	Alert     Alert
+	BaseResponse
 }

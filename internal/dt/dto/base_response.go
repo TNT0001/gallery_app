@@ -1,7 +1,8 @@
 package dto
 
 type BaseResponse struct {
-	Alert
+	Login bool
+	Alert Alert
 }
 
 type Alert struct {

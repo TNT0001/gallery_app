@@ -1,5 +1,5 @@
 <!-- define login_form-->
-{{define "login_form"}}
+{{define "content"}}
 <div class="row">
   <div class="col-md-4 col-md-offset-4">
     <div class="panel panel-primary">
@@ -38,27 +38,4 @@
   </div>
   <button type="submit" class="btn btn-primary">Log In</button>
 </form>
-{{end}}
-
-<!-- define login -->
-
-{{define "login"}}
-<!DOCTYPE html>
-<html lang="en">
-  {{template "header" .}}
-  <body>
-    {{template "navbar" .}}
-    <div class="container-fluid">
-      {{if .Alert}} {{template "alert" .}} {{end}}
-      <!--template login_form-->
-      {{template "login_form" .}}
-      <!--template footer-->
-      {{template "footer"}}
-    </div>
-
-    <!-- jquery & Bootstrap JS -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  </body>
-</html>
 {{end}}

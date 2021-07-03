@@ -5,5 +5,5 @@ type GalleryCreateResponse struct {
 	ID     uint
 	UserID uint
 	Login  bool
-	Alert  Alert
+	BaseResponse
 }

@@ -6,6 +6,7 @@ import (
 	"tung.gallery/internal/dt/dto"
 	"tung.gallery/internal/dt/entity"
 	"tung.gallery/internal/services"
+	"tung.gallery/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,34 +19,39 @@ func NewUserHandler(s services.UserServiceInterface) *userHandler {
 	return &userHandler{Services: s}
 }
 
-func (u *userHandler) SignUp(c *gin.Context) {
-	c.HTML(http.StatusOK, "signup", gin.H{
-		"PageName": "contact",
-	})
+func (u *userHandler) GetSignUpPage(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	c.HTML(http.StatusOK, "signup", dto.BaseResponse{Login: login})
 }
 
-func (u *userHandler) Create(c *gin.Context) {
+func (u *userHandler) SignUp(c *gin.Context) {
+	login := utils.CheckLogin(c)
+
 	req := dto.UserCreateRequest{}
 	err := c.ShouldBind(&req)
+
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "signup", dto.UserCreateResponse{})
+		baseResponse := utils.BaseResponse(login, services.AlertLvlInfo, "Invalid create account request")
+		c.HTML(http.StatusBadRequest, "signup", dto.UserCreateResponse{
+			BaseResponse: baseResponse})
 		return
 	}
 
 	res, err := u.Services.CreateUser(req)
+	res.Login = login
 
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "signup", res)
 		return
 	}
 
-	c.HTML(http.StatusOK, "signup", res)
+	c.Redirect(http.StatusFound, "/user/login")
 }
 
-func (u *userHandler) LoginPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "login", gin.H{
-		"PageName": "contact",
-	})
+func (u *userHandler) GetLoginPage(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	baseResponse := dto.BaseResponse{Login: login}
+	c.HTML(http.StatusOK, "login", baseResponse)
 }
 
 func (u *userHandler) Login(c *gin.Context) {
@@ -53,64 +59,66 @@ func (u *userHandler) Login(c *gin.Context) {
 	err := c.ShouldBind(&req)
 
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "login", dto.UserLoginResponse{})
+		baseResponse := utils.BaseResponse(false, services.AlertLvlInfo, "invalid email or password")
+		c.HTML(http.StatusBadRequest, "login", dto.UserLoginResponse{BaseResponse: baseResponse})
 		return
 	}
 
-	token, err := u.Services.Login(req)
+	res, err := u.Services.Login(req)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "login", dto.UserLoginResponse{})
+		c.HTML(http.StatusBadRequest, "login", res)
 		return
 	}
-	c.SetCookie("token", token, 60*60*24, "/", "127.0.0.1", true, true)
+	c.SetCookie("token", res.Token, 60*60*24, "/", "127.0.0.1", true, true)
 
-	c.HTML(http.StatusOK, "home", dto.UserLoginResponse{Login: true})
+	c.Redirect(http.StatusFound, "/gallery")
 }
 
 func (u *userHandler) Update(c *gin.Context) {
 	req := dto.UserUpdateRequest{}
 	err := c.ShouldBind(&req)
 
+	login := utils.CheckLogin(c)
+
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "home", dto.UserUpdateResponse{Login: true})
+		baseResponse := utils.BaseResponse(login, services.AlertLvlInfo, "invalid update form")
+		c.HTML(http.StatusBadRequest, "update", dto.UserUpdateResponse{BaseResponse: baseResponse})
 		return
 	}
 
 	user, _ := c.Get("user")
 	oldUser := user.(entity.Users)
 
-	err = u.Services.UpdateUser(oldUser, req)
+	res, err := u.Services.UpdateUser(oldUser, req)
+	res.Login = login
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "home", dto.UserUpdateResponse{Login: true})
+		c.HTML(http.StatusBadRequest, "update", res)
 		return
 	}
 
-	c.HTML(http.StatusBadRequest, "login", dto.UserUpdateResponse{Login: true})
+	c.HTML(http.StatusOK, "update", res)
 }
 
 func (u *userHandler) Delete(c *gin.Context) {
-	user, exists := c.Get("user")
-	if !exists {
-		c.HTML(http.StatusBadRequest, "login", dto.UserUpdateResponse{})
-	}
-	oldUser, ok := user.(entity.Users)
-	if !ok {
-		c.HTML(http.StatusBadRequest, "login", dto.UserUpdateResponse{})
-		return
-	}
-
-	err := u.Services.DeleteUser(oldUser)
+	login := utils.CheckLogin(c)
+	user, err := utils.GetUserFromContext(c)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "home", dto.UserUpdateResponse{Login: true})
+		baseResponse := utils.BaseResponse(login, services.AlertLvlInfo, utils.ErrUserNotFound.Error())
+		c.HTML(http.StatusOK, "update", dto.UserDeleteResponse{BaseResponse: baseResponse})
+	}
+
+	res, err := u.Services.DeleteUser(user)
+	res.Login = login
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "update", res)
 		return
 	}
 
-	c.HTML(http.StatusOK, "home", dto.UserUpdateResponse{})
+	res.Login = false
+	c.HTML(http.StatusOK, "home", res)
 }
 
 func (u *userHandler) LogOut(c *gin.Context) {
-	c.Set("user", nil)
-	c.HTML(http.StatusOK, "home", struct {
-		Login bool
-	}{Login: false})
+	baseResponse := dto.BaseResponse{Login: false}
+	c.HTML(http.StatusOK, "home", baseResponse)
 }
