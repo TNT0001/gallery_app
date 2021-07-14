@@ -173,7 +173,7 @@ func (s *userService) DeleteUser(user *entity.Users) (dto.UserDeleteResponse, er
 func (s *userService) Login(req dto.UserLoginRequest) (dto.UserLoginResponse, error) {
 	user, err := s.FindUserByEmail(req)
 	if errors.Is(err, models.ErrInvalidPassword) {
-		baseReponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInvalidID.Error())
+		baseReponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrInvalidPassword.Error())
 		return dto.UserLoginResponse{BaseResponse: baseReponse}, err
 	}
 

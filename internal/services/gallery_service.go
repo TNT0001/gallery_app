@@ -1,6 +1,12 @@
 package services
 
 import (
+	"fmt"
+	"mime/multipart"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"tung.gallery/internal/dt/dto"
 	"tung.gallery/internal/dt/entity"
 	"tung.gallery/internal/repo"
@@ -8,12 +14,15 @@ import (
 	"tung.gallery/pkg/utils"
 )
 
+var imageExt = []string{".jpg", ".jpeg", ".png"}
+
 type GalleriesServiceInterface interface {
 	CreateGallery(*entity.Users, dto.GalleryCreateRequest) (dto.GalleryCreateResponse, error)
 	ShowGallery(id uint) (dto.ShowGalleryResponse, error)
 	Update(*entity.Users, dto.GalleryUpdateRequest) (dto.GalleryUpdateResponse, error)
 	Delete(id uint) (dto.GalleryDeleteResponse, error)
 	GetAllGalleriesByUserID(id uint) (dto.UserGetAllGalleriesResponse, error)
+	UploadImage([]*multipart.FileHeader) bool
 }
 
 type galleryService struct {
@@ -57,10 +66,31 @@ func (g *galleryService) ShowGallery(id uint) (dto.ShowGalleryResponse, error) {
 		return dto.ShowGalleryResponse{BaseResponse: baseResponse}, err
 	}
 
+	basePath := filepath.Join("assets/images", strconv.Itoa(int(id)))
+	err = os.MkdirAll(basePath, 0777)
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrCreateGalleryFail.Error())
+		return dto.ShowGalleryResponse{BaseResponse: baseResponse}, err
+	}
+
+	img, err := filepath.Glob(basePath + "/*.*")
+	if err != nil {
+		baseResponse := utils.BaseResponse(false, AlertLvlInfo, models.ErrCreateGalleryFail.Error())
+		return dto.ShowGalleryResponse{BaseResponse: baseResponse}, err
+	}
+
+	images := make([]string, 0)
+	if len(img) > 0 {
+		for _, image := range img {
+			images = append(images, "/"+image)
+		}
+	}
+
 	return dto.ShowGalleryResponse{
 		Title:        gallery.Title,
 		ID:           gallery.ID,
 		UserID:       gallery.UserID,
+		Images:       images,
 		BaseResponse: dto.BaseResponse{},
 	}, nil
 }
@@ -127,4 +157,15 @@ func (g *galleryService) GetAllGalleriesByUserID(id uint) (dto.UserGetAllGalleri
 		Galleries:    galleries,
 		BaseResponse: baseResponse,
 	}, nil
+}
+
+func (g *galleryService) UploadImage(files []*multipart.FileHeader) bool {
+	for _, file := range files {
+		fmt.Println(file.Filename)
+		validExt := utils.CheckingExt(filepath.Ext(file.Filename), imageExt)
+		if !validExt {
+			return false
+		}
+	}
+	return true
 }

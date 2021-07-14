@@ -1,9 +1,11 @@
-package gale
+package galleries
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,10 @@ var (
 
 	// Error Permisson request fail
 	ErrInvalidPermission = errors.New("invalid permission")
+)
+
+const (
+	imageDir = "assets/images"
 )
 
 type galleryHandler struct {
@@ -41,7 +47,7 @@ func (g *galleryHandler) GetNewGalleryPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "new_gallery", baseResponse)
 }
 
-func (g *galleryHandler) NewGallery(c *gin.Context) {
+func (g *galleryHandler) PostNewGallery(c *gin.Context) {
 	login := utils.CheckLogin(c)
 	if !login {
 		c.Redirect(http.StatusFound, "/user/login")
@@ -84,20 +90,20 @@ func (g *galleryHandler) GetGalleryPage(c *gin.Context) {
 
 	idString, ok := c.Params.Get("id")
 	if !ok {
-		c.Redirect(http.StatusFound, "all_galleries")
+		c.Redirect(http.StatusFound, "/gallery")
 		return
 	}
 
 	id, err := strconv.ParseUint(idString, 10, 64)
 	if err != nil {
-		c.Redirect(http.StatusFound, "all_galleries")
+		c.Redirect(http.StatusFound, "/gallery")
 		return
 	}
 
 	res, err := g.Services.ShowGallery(uint(id))
 	res.Login = login
 	if err != nil {
-		c.Redirect(http.StatusFound, "all_galleries")
+		c.Redirect(http.StatusFound, "/gallery")
 		return
 	}
 
@@ -128,7 +134,7 @@ func (g *galleryHandler) GetEditPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "edit_gallery", res)
 }
 
-func (g *galleryHandler) EditGallery(c *gin.Context) {
+func (g *galleryHandler) PostEditGallery(c *gin.Context) {
 	login := utils.CheckLogin(c)
 	if !login {
 		c.Redirect(http.StatusFound, "/user/login")
@@ -182,7 +188,7 @@ func (g *galleryHandler) Delete(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/gallery")
 }
 
-func (g *galleryHandler) ShowALlGalleries(c *gin.Context) {
+func (g *galleryHandler) GetShowAllGalleries(c *gin.Context) {
 	login := utils.CheckLogin(c)
 	if !login {
 		c.Redirect(http.StatusFound, "/user/login")
@@ -237,4 +243,94 @@ func (g *galleryHandler) checkPermission(c *gin.Context) (dto.BaseResponse, int,
 
 	baseResponse := dto.BaseResponse{}
 	return baseResponse, id, user, nil
+}
+
+func (g *galleryHandler) UploadImage(c *gin.Context) {
+	login := utils.CheckLogin(c)
+	if !login {
+		c.Redirect(http.StatusFound, "/user/login")
+		return
+	}
+
+	baseResponse, id, _, err := g.checkPermission(c)
+	baseResponse.Login = login
+	if err != nil {
+		c.HTML(http.StatusNonAuthoritativeInfo, "home", baseResponse)
+		return
+	}
+
+	gallery, err := g.Services.ShowGallery(uint(id))
+	if err != nil {
+		baseResponse = utils.BaseResponse(login, services.AlertLvlError, models.ErrInternalServerError.Error())
+		c.HTML(http.StatusInternalServerError, "home", dto.GalleryEditResponse{
+			Title:        gallery.Title,
+			ID:           gallery.ID,
+			BaseResponse: baseResponse,
+		})
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		baseResponse = utils.BaseResponse(login, services.AlertLvlError, "bad request")
+		c.HTML(http.StatusBadRequest, "edit_gallery", dto.GalleryEditResponse{
+			BaseResponse: baseResponse,
+			ID:           gallery.ID,
+			Title:        gallery.Title,
+		})
+	}
+
+	files := form.File["images"]
+
+	validFileExt := g.Services.UploadImage(files)
+	if !validFileExt {
+		baseResponse = utils.BaseResponse(login, services.AlertLvlError, utils.ErrInvalidFile.Error())
+		c.HTML(http.StatusBadRequest, "edit_gallery", dto.GalleryEditResponse{
+			BaseResponse: baseResponse,
+			ID:           gallery.ID,
+			Title:        gallery.Title,
+		})
+		return
+	}
+
+	for _, file := range files {
+		imagePath := filepath.Join(imageDir, strconv.Itoa(int(gallery.ID)), file.Filename)
+		err := os.MkdirAll(filepath.Dir(imagePath), 0777)
+		if err != nil {
+			baseResponse = utils.BaseResponse(login, services.AlertLvlError, models.ErrInternalServerError.Error())
+			c.HTML(http.StatusBadRequest, "edit_gallery", dto.GalleryEditResponse{
+				BaseResponse: baseResponse,
+				ID:           gallery.ID,
+				Title:        gallery.Title,
+			})
+			return
+		}
+
+		imageFile, err := os.Create(imagePath)
+		imageFile.Close()
+		if err != nil {
+			baseResponse = utils.BaseResponse(login, services.AlertLvlError, models.ErrInternalServerError.Error())
+			c.HTML(http.StatusBadRequest, "edit_gallery", dto.GalleryEditResponse{
+				BaseResponse: baseResponse,
+				ID:           gallery.ID,
+				Title:        gallery.Title,
+			})
+			return
+		}
+
+		err = c.SaveUploadedFile(file, imagePath)
+		if err != nil {
+			baseResponse = utils.BaseResponse(login, services.AlertLvlError, models.ErrInternalServerError.Error())
+			c.HTML(http.StatusBadRequest, "edit_gallery", dto.GalleryEditResponse{
+				BaseResponse: baseResponse,
+				ID:           gallery.ID,
+				Title:        gallery.Title,
+			})
+			return
+		}
+	}
+
+	baseResponse = utils.BaseResponse(login, services.AlertLvlSuccess, "upload image success")
+	galleryApi := "/gallery/" + strconv.Itoa(id)
+	c.Redirect(http.StatusFound, galleryApi)
 }

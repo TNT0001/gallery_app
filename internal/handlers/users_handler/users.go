@@ -69,7 +69,7 @@ func (u *userHandler) Login(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "login", res)
 		return
 	}
-	c.SetCookie("token", res.Token, 60*60*24, "/", "127.0.0.1", true, true)
+	c.SetCookie("token", res.Token, 60*60*24, "/", "localhost", true, true)
 
 	c.Redirect(http.StatusFound, "/gallery")
 }

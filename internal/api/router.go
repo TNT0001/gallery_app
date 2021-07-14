@@ -59,6 +59,7 @@ func Initialize(r *router) {
 	r.Engine.GET("/contact", handlers.Contact)
 	r.Engine.GET("/faq", handlers.Faq)
 
+	r.Engine.Static("/assets/images", "./assets/images")
 	// User router
 	userAPi := r.Engine.Group("/user")
 	{
@@ -73,12 +74,13 @@ func Initialize(r *router) {
 	galleryApi := r.Engine.Group("/gallery")
 	galleryApi.Use(middleware.LoginOnly())
 	{
-		galleryApi.GET("/", galleryHandler.ShowALlGalleries)
+		galleryApi.GET("/", galleryHandler.GetShowAllGalleries)
 		galleryApi.GET("/new", galleryHandler.GetNewGalleryPage)
-		galleryApi.POST("/new", galleryHandler.NewGallery)
+		galleryApi.POST("/new", galleryHandler.PostNewGallery)
 		galleryApi.GET("/:id", galleryHandler.GetGalleryPage)
 		galleryApi.GET("/:id/edit", galleryHandler.GetEditPage)
-		galleryApi.POST("/:id/update", galleryHandler.EditGallery)
+		galleryApi.POST("/:id/update", galleryHandler.PostEditGallery)
 		galleryApi.POST("/:id/delete", galleryHandler.Delete)
+		galleryApi.POST("/:id/images", galleryHandler.UploadImage)
 	}
 }

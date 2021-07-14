@@ -21,6 +21,9 @@ const (
 var (
 	// Error fail to get user from context
 	ErrUserNotFound = errors.New("can't get user from context")
+
+	// Error invalid file upload
+	ErrInvalidFile = errors.New("file upload invalid")
 )
 
 func Bytes(n int) ([]byte, error) {
@@ -106,4 +109,13 @@ func BaseResponse(login bool, alertLevel, message string) dto.BaseResponse {
 			Message: message,
 		},
 	}
+}
+
+func CheckingExt(fileExt string, validExt []string) bool {
+	for _, ext := range validExt {
+		if fileExt == ext {
+			return true
+		}
+	}
+	return false
 }
