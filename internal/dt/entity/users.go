@@ -7,7 +7,7 @@ import (
 )
 
 // UsersTableName TableName
-var UsersTableName = "users"
+var usersTableName = "users"
 
 // Users struct
 type Users struct {
@@ -21,6 +21,6 @@ type Users struct {
 }
 
 // TableName func
-func (i *Users) TableName() string {
-	return UsersTableName
+func (e *Users) TableName() string {
+	return usersTableName
 }

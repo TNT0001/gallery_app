@@ -5,16 +5,17 @@ import (
 )
 
 // GalleriesTableName TableName
-var GalleriesTableName = "galleries"
+var galleriesTableName = "galleries"
 
 // Galleries struct
 type Galleries struct {
 	UserID uint   `gorm:"column:user_id; not_null; index"`
 	Title  string `gorm:"column:title; not_null"`
+	ImageIDs uint `gorm:"column:image_ids"`
 	gorm.Model
 }
 
 // TableName func
-func (g *Galleries) TableName() string {
-	return GalleriesTableName
+func (e *Galleries) TableName() string {
+	return galleriesTableName
 }
