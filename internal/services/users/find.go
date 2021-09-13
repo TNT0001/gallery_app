@@ -10,7 +10,7 @@ import (
 )
 
 func (s *userService) FindUserById(id uint) (*entity.Users, error) {
-	user, err := s.Repo.ByID(id)
+	user, err := s.UserRepo.ByID(id)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, errors.New("fail to find user by id")
@@ -19,7 +19,7 @@ func (s *userService) FindUserById(id uint) (*entity.Users, error) {
 }
 
 func (s *userService) FindUserByEmail(req *user_dto.UserLoginRequest) (*entity.Users, error) {
-	user, err := s.Repo.ByEmail(req.Email)
+	user, err := s.UserRepo.ByEmail(req.Email)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, errors.New("fail to find user by email")

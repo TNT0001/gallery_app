@@ -17,7 +17,7 @@ type Users struct {
 	Age      int        `gorm:"column:age"`
 	ImageURL string     `gorm:"column:image_url"`
 	Birthday *time.Time `gorm:"column:birthday;default null"`
-	*gorm.Model
+	gorm.Model
 }
 
 // TableName func

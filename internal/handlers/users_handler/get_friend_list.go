@@ -4,22 +4,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"tung.gallery/internal/dt/dto/user_dto"
+	"strconv"
 	"tung.gallery/internal/pkg"
 )
 
-func (u *userHandler) SignUp(c *gin.Context) {
-	req := &user_dto.UserCreateRequest{}
-	err := c.ShouldBind(req)
-	log.Println(req)
-	if err != nil {
+func (u *userHandler) GetUserFriendList(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
 		log.Println(err.Error())
-		pkg.ResponseErrorJSON(c, http.StatusBadRequest, err.Error())
+		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "error when parse request")
 		return
 	}
 
-	res, err := u.Services.CreateUser(req)
-
+	res, err := u.Services.GetFriendList(uint(id))
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return

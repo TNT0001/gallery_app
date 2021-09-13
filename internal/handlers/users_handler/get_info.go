@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"tung.gallery/internal/dt/dto/user_dto"
 	"tung.gallery/internal/pkg"
+	"tung.gallery/internal/pkg/mapper"
 )
 
 func (u *userHandler) GetUserInfo(c *gin.Context) {
@@ -23,13 +23,7 @@ func (u *userHandler) GetUserInfo(c *gin.Context) {
 		return
 	}
 
-	res := user_dto.UserGetInfoResponse{
-		Username: user.Username,
-		Email:    user.Email,
-		Age:      user.Age,
-		ImageURL: user.ImageURL,
-		Birthday: user.Birthday,
-	}
+	res := mapper.FromUserToUserInfo(user)
 
 	pkg.ResponseSuccessJSON(c, http.StatusOK, res)
 }

@@ -1,4 +1,4 @@
-package repo
+package gallery_repo
 
 import (
 	"gorm.io/gorm"

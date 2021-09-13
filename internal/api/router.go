@@ -2,14 +2,15 @@ package api
 
 import (
 	"log"
+	"tung.gallery/internal/middleware"
+	"tung.gallery/internal/repo/user_repo/friend"
+	"tung.gallery/internal/repo/user_repo/user"
 	"tung.gallery/internal/services/users"
 
 	"github.com/gin-gonic/gin"
 	"tung.gallery/internal/dt/entity"
 	"tung.gallery/internal/handlers"
 	uh "tung.gallery/internal/handlers/users_handler"
-	"tung.gallery/internal/middleware"
-	"tung.gallery/internal/repo"
 	"tung.gallery/pkg/models"
 )
 
@@ -42,8 +43,9 @@ func Initialize(r *router) {
 	}
 
 	// User Handler
-	userRepo := repo.NewUserRepo(db)
-	newUserService := users.NewUserService(userRepo)
+	userRepo := user.NewUserRepo(db)
+	friendRepo := friend.NewFriendRepo(db)
+	newUserService := users.NewUserService(userRepo, friendRepo)
 	userHandler := uh.NewUserHandler(newUserService)
 
 	// Gallery Handler
@@ -52,25 +54,32 @@ func Initialize(r *router) {
 	//galleryHandler := gh.NewGalleryHandler(newGalleryService)
 
 	// Home, Contact, Faq pages router
-	r.Engine.Use(middleware.AuthorizeJWT(userRepo))
+	//r.Engine.Use(middleware.AuthorizeJWT(userRepo))
 	r.Engine.GET("/", handlers.Hello)
 	r.Engine.GET("/contact", handlers.Contact)
 	r.Engine.GET("/faq", handlers.Faq)
 
 	r.Engine.Static("/assets/images", "./assets/images")
 	// User router
-	userAPi := r.Engine.Group("/user")
+	userAPI := r.Engine.Group("/user")
 	{
-		//userAPi.GET("/signup", userHandler.GetSignUpPage)
-		userAPi.POST("/signup", userHandler.SignUp)
-		//userAPi.GET("/login", userHandler.GetLoginPage)
-		userAPi.POST("/login", userHandler.Login)
-		//userAPi.GET("/logout", userHandler.LogOut)
-		userAPi.GET("/:id", userHandler.GetUserInfo)
+		//userAPI.GET("/signup", userHandler.GetSignUpPage)
+		userAPI.POST("/signup", userHandler.SignUp)
+		//userAPI.GET("/login", userHandler.GetLoginPage)
+		userAPI.POST("/login", userHandler.Login)
+		//userAPI.GET("/logout", userHandler.LogOut)
+		userAPI.GET("/:id", userHandler.GetUserInfo)
 
-		userAPi.DELETE("/delete", userHandler.Delete)
+		userAPI.GET("/friendlist/:id", userHandler.GetUserFriendList)
+	}
 
-		userAPi.PUT("/update", userHandler.Update)
+	userAPI.Use(middleware.AuthorizeJWT(userRepo))
+	{
+		userAPI.DELETE("/delete", userHandler.Delete)
+
+		userAPI.PUT("/update", userHandler.Update)
+
+		userAPI.POST("/add_friend", userHandler.AddFriend)
 	}
 
 	// Gallery router

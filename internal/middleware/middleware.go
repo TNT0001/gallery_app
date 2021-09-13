@@ -1,19 +1,18 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"tung.gallery/internal/repo"
+	"net/http"
+	"tung.gallery/internal/repo/user_repo"
 	"tung.gallery/pkg/models"
 	"tung.gallery/pkg/utils"
 )
 
-func AuthorizeJWT(repo repo.UserRepositoryInterface) gin.HandlerFunc {
+func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString, _ := c.Cookie("token")
-		token, err := JWTAuthService().ValidateToken(tokenString)
+		tokenString := c.GetHeader("Authorization")
+		token, err := JWTAuthService().ValidateToken(tokenString[7:])
 		if err != nil {
 			return
 		}

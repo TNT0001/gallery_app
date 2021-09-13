@@ -10,7 +10,7 @@ import (
 )
 
 func (s *userService) CreateUser(req *user_dto.UserCreateRequest) (*user_dto.UserCreateResponse, error) {
-	user, err := s.Repo.ByEmail(req.Email)
+	user, err := s.UserRepo.ByEmail(req.Email)
 
 	if err != nil && err != models.ErrNotFound {
 		log.Println(err.Error())
@@ -28,7 +28,7 @@ func (s *userService) CreateUser(req *user_dto.UserCreateRequest) (*user_dto.Use
 
 	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	newUser.Password = string(hashPassword)
-	err = s.Repo.CreateUser(newUser)
+	err = s.UserRepo.CreateUser(newUser)
 
 	if err != nil {
 		log.Println(err.Error())

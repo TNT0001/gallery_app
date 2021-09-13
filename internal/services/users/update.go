@@ -10,7 +10,7 @@ import (
 
 func (s *userService) UpdateUser(oldUser *entity.Users, req *user_dto.UserUpdateRequest) (*user_dto.UserUpdateResponse, error) {
 	if req.Email != "" {
-		_, err := s.Repo.ByEmail(req.Email)
+		_, err := s.UserRepo.ByEmail(req.Email)
 		if err != nil && err != models.ErrNotFound {
 			return nil, errors.New("error when check user email")
 		} else if err == nil {
@@ -19,6 +19,7 @@ func (s *userService) UpdateUser(oldUser *entity.Users, req *user_dto.UserUpdate
 	}
 
 	user := &entity.Users{
+		Username: req.Username,
 		Email:    req.Email,
 		Password: req.Password,
 		Age:      req.Age,
@@ -26,7 +27,7 @@ func (s *userService) UpdateUser(oldUser *entity.Users, req *user_dto.UserUpdate
 		ImageURL: req.ImageURL,
 	}
 
-	err := s.Repo.Update(user, oldUser.ID)
+	err := s.UserRepo.Update(user, oldUser.ID)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, errors.New("fail to update user profile")
