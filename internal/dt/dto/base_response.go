@@ -1,11 +1,17 @@
 package dto
 
-type BaseResponse struct {
-	Login bool
-	Alert Alert
-}
+type (
+	BaseResponse struct {
+		Success bool `json:"success,required"`
+		DataMsg
+		ErrorMsg
+	}
 
-type Alert struct {
-	Level   string
-	Message string
-}
+	DataMsg struct {
+		Data interface{} `json:"data,omitempty"`
+	}
+
+	ErrorMsg struct {
+		Error interface{} `json:"error,omitempty"`
+	}
+)

@@ -1,7 +1,6 @@
 package dto
 
 type GalleryEditResponse struct {
-	ID    uint
-	Title string
-	BaseResponse
+	ID    uint `json:"id"`
+	Title string `json:"title"`
 }

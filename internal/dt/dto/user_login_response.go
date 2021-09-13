@@ -1,6 +1,5 @@
 package dto
 
 type UserLoginResponse struct {
-	Token string
-	BaseResponse
+	Token string `json:"token"`
 }

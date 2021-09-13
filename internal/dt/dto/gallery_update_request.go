@@ -1,6 +1,6 @@
 package dto
 
 type GalleryUpdateRequest struct {
-	Title string `form:"title" binding:"required"`
-	ID    uint
+	Title string `json:"title" binding:"required"`
+	ID    uint `json:"id"`
 }

@@ -1,9 +1,8 @@
 package dto
 
 type GalleryCreateResponse struct {
-	Title  string `form:"title"`
-	ID     uint
-	UserID uint
-	Login  bool
-	BaseResponse
+	Title  string `json:"title"`
+	ID     uint `json:"id"`
+	UserID uint `json:"user_id"`
+	Login  bool `json:"login"`
 }
