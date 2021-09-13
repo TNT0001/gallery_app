@@ -11,7 +11,7 @@ var galleriesTableName = "galleries"
 type Galleries struct {
 	UserID uint   `gorm:"column:user_id; not_null; index"`
 	Title  string `gorm:"column:title; not_null"`
-	ImageIDs uint `gorm:"column:image_ids"`
+	ImageID uint `gorm:"column:image_id"`
 	gorm.Model
 }
 

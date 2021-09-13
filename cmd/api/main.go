@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"tung.gallery/internal/api"
 )
 
@@ -9,5 +10,7 @@ func main() {
 	r := api.NewRouter()
 	api.Initialize(r)
 	fmt.Println("start run server")
-	r.Engine.Run(":5000")
+	if err := r.Engine.Run(":5000"); err != nil {
+		log.Fatalln(err.Error())
+	}
 }

@@ -7,10 +7,10 @@ import (
 )
 
 type UserRepositoryInterface interface {
-	CreateUser(user entity.Users) error
+	CreateUser(user *entity.Users) error
 	ByEmail(email string) (*entity.Users, error)
 	ByID(id uint) (*entity.Users, error)
-	Update(user entity.Users) error
+	Update(user *entity.Users, id uint) error
 	Delete(id uint) error
 }
 
@@ -22,8 +22,8 @@ func NewUserRepo(db *gorm.DB) UserRepositoryInterface {
 	return &userRepo{DB: db}
 }
 
-func (u *userRepo) CreateUser(user entity.Users) error {
-	err := u.DB.Create(&user).Error
+func (u *userRepo) CreateUser(user *entity.Users) error {
+	err := u.DB.Create(user).Error
 	return err
 }
 
@@ -45,8 +45,8 @@ func (u *userRepo) ByID(id uint) (*entity.Users, error) {
 	return &user, err
 }
 
-func (u *userRepo) Update(user entity.Users) error {
-	err := u.DB.Updates(&user).Error
+func (u *userRepo) Update(user *entity.Users, id uint) error {
+	err := u.DB.Where("id = ?", id).Updates(&user).Error
 	return err
 }
 

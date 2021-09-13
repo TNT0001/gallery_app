@@ -2,17 +2,15 @@ package api
 
 import (
 	"log"
+	"tung.gallery/internal/services/users"
 
 	"github.com/gin-gonic/gin"
 	"tung.gallery/internal/dt/entity"
 	"tung.gallery/internal/handlers"
-	gh "tung.gallery/internal/handlers/galleries_handler"
 	uh "tung.gallery/internal/handlers/users_handler"
 	"tung.gallery/internal/middleware"
 	"tung.gallery/internal/repo"
-	"tung.gallery/internal/services"
 	"tung.gallery/pkg/models"
-	"tung.gallery/pkg/utils"
 )
 
 type router struct {
@@ -33,8 +31,8 @@ func NewRouter() *router {
 
 func Initialize(r *router) {
 	// Set router html template render
-	multiRender := utils.LoadDynamicTemplate("view/tmpl", "01")
-	r.Engine.HTMLRender = multiRender
+	//multiRender := utils.LoadDynamicTemplate("view/tmpl", "01")
+	//r.Engine.HTMLRender = multiRender
 
 	// Setup database
 	db := models.NewDB()
@@ -45,13 +43,13 @@ func Initialize(r *router) {
 
 	// User Handler
 	userRepo := repo.NewUserRepo(db)
-	newUserService := services.NewUserService(userRepo)
+	newUserService := users.NewUserService(userRepo)
 	userHandler := uh.NewUserHandler(newUserService)
 
 	// Gallery Handler
-	galleryRepo := repo.NewGalleryRepo(db)
-	newGalleryService := services.NewGalleryService(galleryRepo)
-	galleryHandler := gh.NewGalleryHandler(newGalleryService)
+	//galleryRepo := repo.NewGalleryRepo(db)
+	//newGalleryService := services.NewGalleryService(galleryRepo)
+	//galleryHandler := gh.NewGalleryHandler(newGalleryService)
 
 	// Home, Contact, Faq pages router
 	r.Engine.Use(middleware.AuthorizeJWT(userRepo))
@@ -63,24 +61,29 @@ func Initialize(r *router) {
 	// User router
 	userAPi := r.Engine.Group("/user")
 	{
-		userAPi.GET("/signup", userHandler.GetSignUpPage)
+		//userAPi.GET("/signup", userHandler.GetSignUpPage)
 		userAPi.POST("/signup", userHandler.SignUp)
-		userAPi.GET("/login", userHandler.GetLoginPage)
+		//userAPi.GET("/login", userHandler.GetLoginPage)
 		userAPi.POST("/login", userHandler.Login)
-		userAPi.GET("/logout", userHandler.LogOut)
+		//userAPi.GET("/logout", userHandler.LogOut)
+		userAPi.GET("/:id", userHandler.GetUserInfo)
+
+		userAPi.DELETE("/delete", userHandler.Delete)
+
+		userAPi.PUT("/update", userHandler.Update)
 	}
 
 	// Gallery router
-	galleryApi := r.Engine.Group("/gallery")
-	galleryApi.Use(middleware.LoginOnly())
-	{
-		galleryApi.GET("/", galleryHandler.GetShowAllGalleries)
-		galleryApi.GET("/new", galleryHandler.GetNewGalleryPage)
-		galleryApi.POST("/new", galleryHandler.PostNewGallery)
-		galleryApi.GET("/:id", galleryHandler.GetGalleryPage)
-		galleryApi.GET("/:id/edit", galleryHandler.GetEditPage)
-		galleryApi.POST("/:id/update", galleryHandler.PostEditGallery)
-		galleryApi.POST("/:id/delete", galleryHandler.Delete)
-		galleryApi.POST("/:id/images", galleryHandler.UploadImage)
-	}
+	//galleryApi := r.Engine.Group("/gallery")
+	//galleryApi.Use(middleware.LoginOnly())
+	//{
+	//	galleryApi.GET("/", galleryHandler.GetShowAllGalleries)
+	//	galleryApi.GET("/new", galleryHandler.GetNewGalleryPage)
+	//	galleryApi.POST("/new", galleryHandler.PostNewGallery)
+	//	galleryApi.GET("/:id", galleryHandler.GetGalleryPage)
+	//	galleryApi.GET("/:id/edit", galleryHandler.GetEditPage)
+	//	galleryApi.POST("/:id/update", galleryHandler.PostEditGallery)
+	//	galleryApi.POST("/:id/delete", galleryHandler.Delete)
+	//	galleryApi.POST("/:id/images", galleryHandler.UploadImage)
+	//}
 }

@@ -1,4 +1,4 @@
-package dto
+package user_dto
 
 type Gallrery struct {
 	Title  string `json:"title"`

@@ -1,4 +1,4 @@
-package dto
+package user_dto
 
 type UserCreateRequest struct {
 	Username string `json:"username" binding:"max=255,omitempty"`

@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
-	"tung.gallery/internal/dt/dto"
 	"tung.gallery/internal/dt/entity"
 )
 
@@ -99,16 +98,6 @@ func CheckLogin(c *gin.Context) bool {
 		return false
 	}
 	return true
-}
-
-func BaseResponse(login bool, alertLevel, message string) dto.BaseResponse {
-	return dto.BaseResponse{
-		Login: login,
-		Alert: dto.Alert{
-			Level:   alertLevel,
-			Message: message,
-		},
-	}
 }
 
 func CheckingExt(fileExt string, validExt []string) bool {

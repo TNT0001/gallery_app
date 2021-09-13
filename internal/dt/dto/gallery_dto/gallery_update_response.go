@@ -1,6 +1,6 @@
-package dto
+package gallery_dto
 
-type GalleryEditResponse struct {
+type GalleryUpdateResponse struct {
 	ID    uint `json:"id"`
 	Title string `json:"title"`
 }

@@ -1,4 +1,4 @@
-package dto
+package user_dto
 
 type UserCreateResponse struct {
 	Username string `json:"username"`

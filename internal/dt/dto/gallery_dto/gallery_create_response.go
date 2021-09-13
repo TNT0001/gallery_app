@@ -1,4 +1,4 @@
-package dto
+package gallery_dto
 
 type GalleryCreateResponse struct {
 	Title  string `json:"title"`

@@ -2,26 +2,25 @@ package handlers
 
 import (
 	"net/http"
+	"tung.gallery/internal/pkg"
 
 	"github.com/gin-gonic/gin"
-	"tung.gallery/internal/dt/dto"
-	"tung.gallery/pkg/utils"
 )
 
 func Hello(c *gin.Context) {
-	login := utils.CheckLogin(c)
-	baseResponse := dto.BaseResponse{Login: login}
-	c.HTML(http.StatusOK, "home", baseResponse)
+	pkg.ResponseSuccessJSON(c, http.StatusOK, map[string]string{
+		"msg": "hello",
+	})
 }
 
 func Faq(c *gin.Context) {
-	login := utils.CheckLogin(c)
-	baseResponse := dto.BaseResponse{Login: login}
-	c.HTML(http.StatusOK, "faq", baseResponse)
+	pkg.ResponseSuccessJSON(c, http.StatusOK, map[string]string{
+		"msg": "This is Faq page",
+	})
 }
 
 func Contact(c *gin.Context) {
-	login := utils.CheckLogin(c)
-	baseResponse := dto.BaseResponse{Login: login}
-	c.HTML(http.StatusOK, "contact", baseResponse)
+	pkg.ResponseSuccessJSON(c, http.StatusOK, map[string]string{
+		"mailto": "support@tungnguyen.com",
+	})
 }
