@@ -42,7 +42,7 @@ var (
 )
 
 func NewDB() *gorm.DB {
-	dsn := "tung:tungbn161296@tcp(127.0.0.1:3360)/gallery?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "tungnt:tungnt1234@tcp(127.0.0.1:3360)/gallery?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil

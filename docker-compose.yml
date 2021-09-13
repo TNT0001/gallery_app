@@ -1,0 +1,25 @@
+version: "3.3"
+
+services:
+  mysql:
+    image: "mysql:5.7"
+    ports:
+      - "3360:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123
+      MYSQL_DATABASE: "gallery"
+      MYSQL_USER: "tungnt"
+      MYSQL_PASSWORD: "tungnt1234"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    hostname: "mysql_server"
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    networks:
+      - tungnt-test-nw
+
+volumes:
+  mysql-data: {}
+
+networks:
+  tungnt-test-nw:
+      external: true
