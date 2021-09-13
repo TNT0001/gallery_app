@@ -1,4 +1,4 @@
-CREATE TABLE `galleries` (
+CREATE TABLE `galleries`(
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `user_id` int NOT NULL,
