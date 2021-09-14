@@ -9,7 +9,7 @@ import (
 	"tung.gallery/pkg/models"
 )
 
-func (s *userService) FindUserById(id uint) (*entity.Users, error) {
+func (s *userService) FindUserById(id int64) (*entity.Users, error) {
 	user, err := s.UserRepo.ByID(id)
 	if err != nil {
 		log.Println(err.Error())

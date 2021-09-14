@@ -14,7 +14,7 @@ func NewFriendRepo(db *gorm.DB) user_repo.FriendRepositoryInterface {
 	return &friendRepo{DB: db}
 }
 
-func (r *friendRepo) GetFriendIDList(id uint) ([]*entity.Friend, error) {
+func (r *friendRepo) GetFriendIDList(id int64) ([]*entity.Friend, error) {
 	friendList := make([]*entity.Friend, 0)
 	err := r.DB.Where("user_id = ?", id).Find(&friendList).Error
 	if err != nil {
@@ -24,15 +24,15 @@ func (r *friendRepo) GetFriendIDList(id uint) ([]*entity.Friend, error) {
 	return friendList, nil
 }
 
-func (r *friendRepo) AddFriend(userID, FriendID uint) error {
+func (r *friendRepo) AddFriend(userID, FriendID int64) error {
 	friend := []*entity.Friend{
 		{
-			UserID:   userID,
-			FriendID: FriendID,
+			UserID:   uint(userID),
+			FriendID: uint(FriendID),
 		},
 		{
-			UserID: FriendID,
-			FriendID: userID,
+			UserID: uint(FriendID),
+			FriendID: uint(userID),
 		},
 	}
 	return r.DB.Create(&friend).Error

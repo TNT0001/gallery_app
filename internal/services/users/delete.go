@@ -8,7 +8,7 @@ import (
 )
 
 func (s *userService) DeleteUser(user *entity.Users) (*user_dto.UserDeleteResponse, error) {
-	err := s.UserRepo.Delete(user.ID)
+	err := s.UserRepo.Delete(int64(user.ID))
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("error when delete user")

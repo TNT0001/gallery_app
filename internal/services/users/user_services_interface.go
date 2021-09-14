@@ -7,14 +7,14 @@ import (
 )
 
 type UserServiceInterface interface {
-	GetFriendList(id uint) (*user_dto.FriendListReponse, error)
+	GetFriendList(id int64) (*user_dto.FriendListReponse, error)
 	CreateUser(*user_dto.UserCreateRequest) (*user_dto.UserCreateResponse, error)
 	UpdateUser(*entity.Users, *user_dto.UserUpdateRequest) (*user_dto.UserUpdateResponse, error)
 	Login(*user_dto.UserLoginRequest) (*user_dto.UserLoginResponse, error)
 	DeleteUser(*entity.Users) (*user_dto.UserDeleteResponse, error)
-	FindUserById(uint) (*entity.Users, error)
+	FindUserById(int64) (*entity.Users, error)
 	FindUserByEmail(*user_dto.UserLoginRequest) (*entity.Users, error)
-	AddFriend(userID uint, req *user_dto.AddFriendRequest) error
+	AddFriend(userID int64, req *user_dto.AddFriendRequest) error
 }
 
 type userService struct {

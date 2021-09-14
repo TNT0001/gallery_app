@@ -8,11 +8,11 @@ import (
 	"tung.gallery/internal/dt/entity"
 )
 
-func (s *userService) AddFriend(userID uint, req *user_dto.AddFriendRequest) error {
+func (s *userService) AddFriend(userID int64, req *user_dto.AddFriendRequest) error {
 	var err error
 	var user *entity.Users
 	if req.ID != 0 {
-		user, err = s.UserRepo.ByID(req.ID)
+		user, err = s.UserRepo.ByID(int64(req.ID))
 	} else {
 		user, err = s.UserRepo.ByEmail(req.Email)
 	}
@@ -25,7 +25,19 @@ func (s *userService) AddFriend(userID uint, req *user_dto.AddFriendRequest) err
 		return errors.New("user don't exists")
 	}
 
-	err = s.FriendRepo.AddFriend(userID, user.ID)
+	friendList, err := s.FriendRepo.GetFriendIDList(userID)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error when check friend of user")
+	}
+
+	for _, f := range friendList {
+		if f.FriendID == req.ID {
+			return errors.New("you have already is friend of that user")
+		}
+	}
+
+	err = s.FriendRepo.AddFriend(userID, int64(user.ID))
 	if err != nil {
 		log.Println(err)
 		return errors.New("fail to add friend")

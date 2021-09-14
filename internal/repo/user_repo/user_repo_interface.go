@@ -5,13 +5,13 @@ import "tung.gallery/internal/dt/entity"
 type UserRepositoryInterface interface {
 	CreateUser(user *entity.Users) error
 	ByEmail(email string) (*entity.Users, error)
-	ByID(id uint) (*entity.Users, error)
-	Update(user *entity.Users, id uint) error
-	Delete(id uint) error
-	ByListID(id []uint) ([]*entity.Users, error)
+	ByID(id int64) (*entity.Users, error)
+	Update(user *entity.Users, id int64) error
+	Delete(id int64) error
+	ByListID(id []int64) ([]*entity.Users, error)
 }
 
 type FriendRepositoryInterface interface {
-	GetFriendIDList(id uint) ([]*entity.Friend, error)
-	AddFriend(userID, FriendID uint) error
+	GetFriendIDList(id int64) ([]*entity.Friend, error)
+	AddFriend(userID, FriendID int64) error
 }

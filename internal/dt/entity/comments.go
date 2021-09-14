@@ -6,8 +6,8 @@ var commentsTableName = "comments"
 
 type Comments struct {
 	Comment string	`gorm:"column:comment"`
-	UserID uint `gorm:"column:user_id"`
-	ImageID uint `gorm:"column:image_id"`
+	UserID int64 `gorm:"column:user_id"`
+	ImageID int64 `gorm:"column:image_id"`
 	gorm.Model
 }
 

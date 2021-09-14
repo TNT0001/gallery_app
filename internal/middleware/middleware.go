@@ -15,15 +15,18 @@ func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
 		tokenString := c.GetHeader("Authorization")
 		if len(tokenString) < 7 {
 			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
+			c.Abort()
 			return
 		}
 		token, err := JWTAuthService().ValidateToken(tokenString[7:])
 		if err != nil {
 			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
+			c.Abort()
 			return
 		}
 		if !token.Valid {
 			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
+			c.Abort()
 			return
 		}
 		claims := token.Claims.(jwt.MapClaims)
@@ -33,6 +36,7 @@ func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
 			return
 		} else if err != nil {
 			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
+			c.Abort()
 			return
 		}
 

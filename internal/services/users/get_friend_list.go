@@ -7,16 +7,16 @@ import (
 	"tung.gallery/internal/pkg/mapper"
 )
 
-func (s *userService) GetFriendList(id uint) (*user_dto.FriendListReponse, error) {
+func (s *userService) GetFriendList(id int64) (*user_dto.FriendListReponse, error) {
 	friendList, err := s.FriendRepo.GetFriendIDList(id)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("fail to get friend list")
 	}
 
-	friendIDList := make([]uint, 0)
+	friendIDList := make([]int64, 0)
 	for _, friend := range friendList {
-		friendIDList = append(friendIDList, friend.FriendID)
+		friendIDList = append(friendIDList, int64(friend.FriendID))
 	}
 
 	FriendList, err := s.UserRepo.ByListID(friendIDList)

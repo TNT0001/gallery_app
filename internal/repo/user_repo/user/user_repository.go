@@ -29,7 +29,7 @@ func (r *userRepo) ByEmail(email string) (*entity.Users, error) {
 	return &user, err
 }
 
-func (r *userRepo) ByID(id uint) (*entity.Users, error) {
+func (r *userRepo) ByID(id int64) (*entity.Users, error) {
 	user := entity.Users{}
 	err := r.DB.First(&user, id).Error
 	if err == gorm.ErrRecordNotFound {
@@ -38,17 +38,17 @@ func (r *userRepo) ByID(id uint) (*entity.Users, error) {
 	return &user, err
 }
 
-func (r *userRepo) Update(user *entity.Users, id uint) error {
+func (r *userRepo) Update(user *entity.Users, id int64) error {
 	err := r.DB.Where("id = ?", id).Updates(&user).Error
 	return err
 }
 
-func (r *userRepo) Delete(id uint) error {
+func (r *userRepo) Delete(id int64) error {
 	if id < 0 {
 		return models.ErrInvalidID
 	}
 	user := &entity.Users{}
-	user.ID = id
+	user.ID = uint(id)
 	err := r.DB.First(&user).Error
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (r *userRepo) Delete(id uint) error {
 	return err
 }
 
-func (r *userRepo) ByListID(id []uint) ([]*entity.Users, error) {
+func (r *userRepo) ByListID(id []int64) ([]*entity.Users, error) {
 	user := make([]*entity.Users, 0)
 	err := r.DB.Where("id in ?", id).Find(&user).Error
 	if err == gorm.ErrRecordNotFound {

@@ -27,7 +27,7 @@ func (s *userService) UpdateUser(oldUser *entity.Users, req *user_dto.UserUpdate
 		ImageURL: req.ImageURL,
 	}
 
-	err := s.UserRepo.Update(user, oldUser.ID)
+	err := s.UserRepo.Update(user, int64(oldUser.ID))
 	if err != nil {
 		log.Println(err.Error())
 		return nil, errors.New("fail to update user profile")
