@@ -2,9 +2,12 @@ package api
 
 import (
 	"log"
+	gallerieshandler "tung.gallery/internal/handlers/galleries_handler"
 	"tung.gallery/internal/middleware"
+	"tung.gallery/internal/repo/gallery_repo"
 	"tung.gallery/internal/repo/user_repo/friend"
 	"tung.gallery/internal/repo/user_repo/user"
+	"tung.gallery/internal/services/galleries"
 	"tung.gallery/internal/services/users"
 
 	"github.com/gin-gonic/gin"
@@ -49,9 +52,9 @@ func Initialize(r *router) {
 	userHandler := uh.NewUserHandler(newUserService)
 
 	// Gallery Handler
-	//galleryRepo := repo.NewGalleryRepo(db)
-	//newGalleryService := services.NewGalleryService(galleryRepo)
-	//galleryHandler := gh.NewGalleryHandler(newGalleryService)
+	galleryRepo := gallery_repo.NewGalleryRepo(db)
+	newGalleryService := galleries.NewGalleryService(galleryRepo)
+	galleryHandler := gallerieshandler.NewGalleryHandler(newGalleryService)
 
 	// Home, Contact, Faq pages router
 	//r.Engine.Use(middleware.AuthorizeJWT(userRepo))
@@ -82,17 +85,14 @@ func Initialize(r *router) {
 		userAPI.POST("/add_friend", userHandler.AddFriend)
 	}
 
-	// Gallery router
-	//galleryApi := r.Engine.Group("/gallery")
-	//galleryApi.Use(middleware.LoginOnly())
-	//{
-	//	galleryApi.GET("/", galleryHandler.GetShowAllGalleries)
-	//	galleryApi.GET("/new", galleryHandler.GetNewGalleryPage)
-	//	galleryApi.POST("/new", galleryHandler.PostNewGallery)
-	//	galleryApi.GET("/:id", galleryHandler.GetGalleryPage)
-	//	galleryApi.GET("/:id/edit", galleryHandler.GetEditPage)
-	//	galleryApi.POST("/:id/update", galleryHandler.PostEditGallery)
-	//	galleryApi.POST("/:id/delete", galleryHandler.Delete)
-	//	galleryApi.POST("/:id/images", galleryHandler.UploadImage)
-	//}
+	//Gallery router
+	galleryApi := r.Engine.Group("/gallery")
+	galleryApi.Use(middleware.AuthorizeJWT(userRepo))
+	{
+		galleryApi.GET("/show_all", galleryHandler.GetALlGalleryByUserID)
+		galleryApi.GET("/show", galleryHandler.GetGalleryByID)
+		galleryApi.POST("/new", galleryHandler.CreateGallery)
+		galleryApi.POST("/:id/update", galleryHandler.UpdateGallery)
+		galleryApi.DELETE("/:id/delete", galleryHandler.Delete)
+	}
 }

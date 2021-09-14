@@ -4,6 +4,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"tung.gallery/internal/pkg"
 	"tung.gallery/internal/repo/user_repo"
 	"tung.gallery/pkg/models"
 	"tung.gallery/pkg/utils"
@@ -12,11 +13,17 @@ import (
 func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
+		if len(tokenString) < 7 {
+			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
+			return
+		}
 		token, err := JWTAuthService().ValidateToken(tokenString[7:])
 		if err != nil {
+			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
 			return
 		}
 		if !token.Valid {
+			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
 			return
 		}
 		claims := token.Claims.(jwt.MapClaims)
@@ -25,6 +32,7 @@ func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
 		if err == models.ErrNotFound {
 			return
 		} else if err != nil {
+			pkg.ResponseErrorJSON(c, http.StatusBadRequest, "invalid token")
 			return
 		}
 

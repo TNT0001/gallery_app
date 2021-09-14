@@ -11,7 +11,7 @@ var galleriesTableName = "galleries"
 type Galleries struct {
 	UserID uint   `gorm:"column:user_id; not_null; index"`
 	Title  string `gorm:"column:title; not_null"`
-	ImageID uint `gorm:"column:image_id"`
+	IsPublic bool `gorm:"column:is_public;default:1"`
 	gorm.Model
 }
 
