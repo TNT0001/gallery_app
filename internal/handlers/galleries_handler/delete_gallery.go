@@ -9,7 +9,7 @@ import (
 	"tung.gallery/pkg/utils"
 )
 
-func (g *galleryHandler) Delete(c *gin.Context) {
+func (h *galleryHandler) Delete(c *gin.Context) {
 	user, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())
@@ -23,14 +23,14 @@ func (g *galleryHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	galleryID, err := strconv.ParseUint(galleryIDString, 10, 64)
+	galleryID, err := strconv.ParseInt(galleryIDString, 10, 64)
 	if err != nil {
 		log.Println(err.Error())
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "gallery id must be integer value")
 		return
 	}
 
-	res, err := g.Services.Delete(user.ID, uint(galleryID))
+	res, err := h.Services.Delete(int64(user.ID), galleryID)
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return

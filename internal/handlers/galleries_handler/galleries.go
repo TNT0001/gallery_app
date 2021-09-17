@@ -1,13 +1,13 @@
 package gallerieshandler
 
 import (
-	"tung.gallery/internal/services/galleries"
+	"tung.gallery/internal/services/galleryservice"
 )
 
 type galleryHandler struct {
-	Services galleries.GalleriesServiceInterface
+	Services galleryservice.GalleriesServiceInterface
 }
 
-func NewGalleryHandler(s galleries.GalleriesServiceInterface) *galleryHandler {
+func NewGalleryHandler(s galleryservice.GalleriesServiceInterface) *galleryHandler {
 	return &galleryHandler{Services: s}
 }

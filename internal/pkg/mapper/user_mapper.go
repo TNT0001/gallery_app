@@ -1,12 +1,12 @@
 package mapper
 
 import (
-	"tung.gallery/internal/dt/dto/user_dto"
+	"tung.gallery/internal/dt/dto/userdto"
 	"tung.gallery/internal/dt/entity"
 )
 
-func FromUserToUserInfo(user *entity.Users) *user_dto.UserGetInfoResponse {
-	return &user_dto.UserGetInfoResponse{
+func FromUserToUserInfo(user *entity.Users) *userdto.UserGetInfoResponse {
+	return &userdto.UserGetInfoResponse{
 		Username: user.Username,
 		Email:    user.Email,
 		Age:      user.Age,
@@ -15,8 +15,8 @@ func FromUserToUserInfo(user *entity.Users) *user_dto.UserGetInfoResponse {
 	}
 }
 
-func FromUserListToUserInfoList(users []*entity.Users) []*user_dto.UserGetInfoResponse {
-	res := make([]*user_dto.UserGetInfoResponse, 0)
+func FromUserListToUserInfoList(users []*entity.Users) []*userdto.UserGetInfoResponse {
+	res := make([]*userdto.UserGetInfoResponse, 0)
 	for _, user := range users {
 		res = append(res, FromUserToUserInfo(user))
 	}

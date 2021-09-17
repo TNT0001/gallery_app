@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"tung.gallery/internal/dt/dto/user_dto"
+	"tung.gallery/internal/dt/dto/userdto"
 	"tung.gallery/internal/pkg"
 	"tung.gallery/pkg/utils"
 )
@@ -18,7 +18,7 @@ func (u *userHandler) AddFriend(c *gin.Context) {
 		return
 	}
 
-	req := &user_dto.AddFriendRequest{}
+	req := &userdto.AddFriendRequest{}
 	err = c.BindJSON(req)
 	if err != nil {
 		log.Println(err)
@@ -33,7 +33,7 @@ func (u *userHandler) AddFriend(c *gin.Context) {
 		return
 	}
 
-	err = u.Services.AddFriend(user.ID, req)
+	err = u.Services.AddFriend(int64(user.ID), req)
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return
@@ -42,7 +42,7 @@ func (u *userHandler) AddFriend(c *gin.Context) {
 	pkg.ResponseSuccessJSON(c, http.StatusOK, nil)
 }
 
-func valid(req *user_dto.AddFriendRequest, userID uint) error {
+func valid(req *userdto.AddFriendRequest, userID uint) error {
 	if req.Email == "" && req.ID < 1 {
 		return errors.New("need at least one of email or id of user to add friend")
 	}

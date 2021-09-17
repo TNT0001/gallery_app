@@ -4,12 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"tung.gallery/internal/dt/dto/user_dto"
+	"tung.gallery/internal/dt/dto/userdto"
 	"tung.gallery/internal/pkg"
 )
 
 func (u *userHandler) SignUp(c *gin.Context) {
-	req := &user_dto.UserCreateRequest{}
+	req := &userdto.UserCreateRequest{}
 	err := c.ShouldBind(req)
 	log.Println(req)
 	if err != nil {

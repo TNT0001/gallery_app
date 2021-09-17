@@ -9,7 +9,7 @@ import (
 	"tung.gallery/pkg/utils"
 )
 
-func (g *galleryHandler) GetGalleryByID(c *gin.Context) {
+func (h *galleryHandler) GetGalleryByID(c *gin.Context) {
 	user, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())
@@ -18,14 +18,14 @@ func (g *galleryHandler) GetGalleryByID(c *gin.Context) {
 	}
 
 	galleryIDString := c.Query("gallery_id")
-	galleryID, err := strconv.ParseUint(galleryIDString, 10, 64)
+	galleryID, err := strconv.ParseInt(galleryIDString, 10, 64)
 	if err != nil {
 		log.Println(err.Error())
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "gallery id must be integer value")
 		return
 	}
 
-	res, err := g.Services.GetGalleryByID(user.ID, uint(galleryID))
+	res, err := h.Services.GetGalleryByID(int64(user.ID), galleryID)
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return
@@ -34,7 +34,7 @@ func (g *galleryHandler) GetGalleryByID(c *gin.Context) {
 	pkg.ResponseSuccessJSON(c, http.StatusOK, res)
 }
 
-func (g *galleryHandler) GetALlGalleryByUserID(c *gin.Context) {
+func (h *galleryHandler) GetALlGalleryByUserID(c *gin.Context) {
 	currentUser, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())
@@ -43,14 +43,14 @@ func (g *galleryHandler) GetALlGalleryByUserID(c *gin.Context) {
 	}
 
 	userIDString := c.Query("user_id")
-	userID, err := strconv.ParseUint(userIDString, 10, 64)
+	userID, err := strconv.ParseInt(userIDString, 10, 64)
 	if err != nil {
 		log.Println(err.Error())
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "gallery id must be integer value")
 		return
 	}
 
-	res, err := g.Services.GetAllGalleriesByUserID(currentUser.ID, uint(userID))
+	res, err := h.Services.GetAllGalleriesByUserID(int64(currentUser.ID), userID)
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return

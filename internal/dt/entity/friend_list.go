@@ -9,8 +9,8 @@ var friendsTableName = "friends"
 
 // UserID struct
 type Friend struct {
-	UserID uint   `gorm:"column:user_id; not_null; index"`
-	FriendID  uint `gorm:"column:friend_id; not_null"`
+	UserID   uint `gorm:"column:user_id; not_null; index"`
+	FriendID uint `gorm:"column:friend_id; not_null"`
 	gorm.Model
 }
 

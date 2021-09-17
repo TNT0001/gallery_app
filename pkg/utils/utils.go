@@ -94,10 +94,7 @@ func GetUserFromContext(c *gin.Context) (*entity.Users, error) {
 
 func CheckLogin(c *gin.Context) bool {
 	_, err := GetUserFromContext(c)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func CheckingExt(fileExt string, validExt []string) bool {

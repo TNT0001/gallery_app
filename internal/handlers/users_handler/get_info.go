@@ -17,7 +17,7 @@ func (u *userHandler) GetUserInfo(c *gin.Context) {
 		return
 	}
 
-	user, err := u.Services.FindUserById(uint(id))
+	user, err := u.Services.FindUserByID(int64(id))
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return

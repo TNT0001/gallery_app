@@ -3,12 +3,12 @@ package api
 import (
 	"log"
 	gallerieshandler "tung.gallery/internal/handlers/galleries_handler"
+	"tung.gallery/internal/handlers/image"
 	"tung.gallery/internal/middleware"
-	"tung.gallery/internal/repo/gallery_repo"
-	"tung.gallery/internal/repo/user_repo/friend"
-	"tung.gallery/internal/repo/user_repo/user"
-	"tung.gallery/internal/services/galleries"
-	"tung.gallery/internal/services/users"
+	"tung.gallery/internal/repo"
+	"tung.gallery/internal/services/galleryservice"
+	"tung.gallery/internal/services/imageservice"
+	"tung.gallery/internal/services/userservice"
 
 	"github.com/gin-gonic/gin"
 	"tung.gallery/internal/dt/entity"
@@ -45,16 +45,27 @@ func Initialize(r *router) {
 		log.Fatal(err.Error())
 	}
 
+	ds := repo.NewRepo(db)
+
 	// User Handler
-	userRepo := user.NewUserRepo(db)
-	friendRepo := friend.NewFriendRepo(db)
-	newUserService := users.NewUserService(userRepo, friendRepo)
+	newUserService := userservice.NewUserService(ds)
 	userHandler := uh.NewUserHandler(newUserService)
 
 	// Gallery Handler
-	galleryRepo := gallery_repo.NewGalleryRepo(db)
-	newGalleryService := galleries.NewGalleryService(galleryRepo)
+	newGalleryService := galleryservice.NewGalleryService(ds)
 	galleryHandler := gallerieshandler.NewGalleryHandler(newGalleryService)
+
+	// ImageHandler
+	imageHanler := image.NewImageHandler(imageservice.NewImageService(ds))
+
+	// ReactHandler
+	//reactHandler := react.NewReactHandler(reactsservice.NewReactService(ds))
+
+	// CommentHandler
+	//commentHandler := comment.NewCommentHandler(commentservice.NewCommentService(ds))
+
+	// middleware
+	authorizeJWT := middleware.AuthorizeJWT(ds)
 
 	// Home, Contact, Faq pages router
 	//r.Engine.Use(middleware.AuthorizeJWT(userRepo))
@@ -76,7 +87,7 @@ func Initialize(r *router) {
 		userAPI.GET("/friendlist/:id", userHandler.GetUserFriendList)
 	}
 
-	userAPI.Use(middleware.AuthorizeJWT(userRepo))
+	userAPI.Use(authorizeJWT)
 	{
 		userAPI.DELETE("/delete", userHandler.Delete)
 
@@ -86,13 +97,22 @@ func Initialize(r *router) {
 	}
 
 	//Gallery router
-	galleryApi := r.Engine.Group("/gallery")
-	galleryApi.Use(middleware.AuthorizeJWT(userRepo))
+	galleryAPI := r.Engine.Group("/gallery")
+	galleryAPI.Use(authorizeJWT)
 	{
-		galleryApi.GET("/show_all", galleryHandler.GetALlGalleryByUserID)
-		galleryApi.GET("/show", galleryHandler.GetGalleryByID)
-		galleryApi.POST("/new", galleryHandler.CreateGallery)
-		galleryApi.POST("/:id/update", galleryHandler.UpdateGallery)
-		galleryApi.DELETE("/:id/delete", galleryHandler.Delete)
+		galleryAPI.GET("/show_all", galleryHandler.GetALlGalleryByUserID)
+		galleryAPI.GET("/show", galleryHandler.GetGalleryByID)
+		galleryAPI.POST("/new", galleryHandler.CreateGallery)
+		galleryAPI.POST("/:id/update", galleryHandler.UpdateGallery)
+		galleryAPI.DELETE("/:id/delete", galleryHandler.Delete)
+	}
+
+	imageAPI := r.Engine.Group("/image")
+	imageAPI.Use(authorizeJWT)
+	{
+		imageAPI.POST("/create", imageHanler.CreateImage)
+		imageAPI.GET("/:id", imageHanler.GetImageByID)
+		imageAPI.GET("/user/:id", imageHanler.GetImageByUserID)
+		imageAPI.GET("/gallery/:id", imageHanler.GetImageByGalleryID)
 	}
 }

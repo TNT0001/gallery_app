@@ -5,9 +5,9 @@ import "gorm.io/gorm"
 var reactsTableName = "reacts"
 
 type React struct {
-	TypeID uint64 `gorm:"column:type_id"`
-	UserID uint `gorm:"column:user_id"`
-	ImageID uint `gorm:"column:image_id"`
+	TypeID  int64 `gorm:"column:type_id"`
+	UserID  int64 `gorm:"column:user_id"`
+	ImageID int64 `gorm:"column:image_id"`
 	gorm.Model
 }
 

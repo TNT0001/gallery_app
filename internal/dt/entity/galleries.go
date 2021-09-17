@@ -9,9 +9,9 @@ var galleriesTableName = "galleries"
 
 // Galleries struct
 type Galleries struct {
-	UserID uint   `gorm:"column:user_id; not_null; index"`
-	Title  string `gorm:"column:title; not_null"`
-	IsPublic bool `gorm:"column:is_public;default:1"`
+	UserID   int64  `gorm:"column:user_id; not_null; index"`
+	Title    string `gorm:"column:title; not_null"`
+	IsPublic bool   `gorm:"column:is_public;default:1"`
 	gorm.Model
 }
 

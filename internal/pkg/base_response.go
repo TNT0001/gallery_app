@@ -7,21 +7,20 @@ import (
 
 func ResponseSuccessJSON(c *gin.Context, statusCode int, data interface{}) {
 	baseResponse := dto.BaseResponse{
-		Success:  true,
-		DataMsg:  dto.DataMsg{
+		Success: true,
+		DataMsg: dto.DataMsg{
 			Data: data,
 		},
 	}
 	c.JSON(statusCode, baseResponse)
 }
 
-func ResponseErrorJSON (c *gin.Context, statusCode int, errors interface{}) {
+func ResponseErrorJSON(c *gin.Context, statusCode int, errors interface{}) {
 	baseResponse := dto.BaseResponse{
-		Success:  false,
+		Success: false,
 		ErrorMsg: dto.ErrorMsg{
 			Error: errors,
 		},
 	}
 	c.JSON(statusCode, baseResponse)
 }
-

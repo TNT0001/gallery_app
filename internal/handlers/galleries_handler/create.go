@@ -4,12 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"tung.gallery/internal/dt/dto/gallery_dto"
+	"tung.gallery/internal/dt/dto/gallerydto"
 	"tung.gallery/internal/pkg"
 	"tung.gallery/pkg/utils"
 )
 
-func (g *galleryHandler) CreateGallery(c *gin.Context) {
+func (h *galleryHandler) CreateGallery(c *gin.Context) {
 	user, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())
@@ -17,7 +17,7 @@ func (g *galleryHandler) CreateGallery(c *gin.Context) {
 		return
 	}
 
-	req := &gallery_dto.GalleryCreateRequest{}
+	req := &gallerydto.GalleryCreateRequest{}
 	err = c.ShouldBind(req)
 	if err != nil {
 		log.Println(err.Error())
@@ -25,8 +25,9 @@ func (g *galleryHandler) CreateGallery(c *gin.Context) {
 		return
 	}
 
-	res, err := g.Services.CreateGallery(user.ID, req)
+	res, err := h.Services.CreateGallery(int64(user.ID), req)
 	if err != nil {
+		log.Println(err.Error())
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}

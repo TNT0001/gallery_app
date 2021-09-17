@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"tung.gallery/internal/dt/dto/gallery_dto"
+	"tung.gallery/internal/dt/dto/gallerydto"
 	"tung.gallery/internal/pkg"
 	"tung.gallery/pkg/utils"
 )
 
-func (g *galleryHandler) UpdateGallery(c *gin.Context) {
+func (h *galleryHandler) UpdateGallery(c *gin.Context) {
 	user, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())
@@ -24,14 +24,14 @@ func (g *galleryHandler) UpdateGallery(c *gin.Context) {
 		return
 	}
 
-	galleryID, err := strconv.ParseUint(galleryIDString, 10, 64)
+	galleryID, err := strconv.ParseInt(galleryIDString, 10, 64)
 	if err != nil {
 		log.Println(err.Error())
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "gallery id must be integer value")
 		return
 	}
 
-	req := &gallery_dto.GalleryUpdateRequest{}
+	req := &gallerydto.GalleryUpdateRequest{}
 	err = c.ShouldBind(&req)
 	if err != nil {
 		log.Println(err.Error())
@@ -39,9 +39,9 @@ func (g *galleryHandler) UpdateGallery(c *gin.Context) {
 		return
 	}
 
-	req.ID = uint(galleryID)
+	req.ID = galleryID
 
-	res, err := g.Services.Update(user.ID, req)
+	res, err := h.Services.Update(int64(user.ID), req)
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return

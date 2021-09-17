@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS  `galleries`(
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
+  `is_public` bool NOT NULL DEFAULT 0,
   `user_id` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,

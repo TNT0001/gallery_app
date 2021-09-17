@@ -5,12 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"tung.gallery/internal/pkg"
-	"tung.gallery/internal/repo/user_repo"
+	"tung.gallery/internal/repo/userrepo"
 	"tung.gallery/pkg/models"
 	"tung.gallery/pkg/utils"
 )
 
-func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
+func AuthorizeJWT(repo userrepo.UserRepositoryInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		if len(tokenString) < 7 {
@@ -31,7 +31,7 @@ func AuthorizeJWT(repo user_repo.UserRepositoryInterface) gin.HandlerFunc {
 		}
 		claims := token.Claims.(jwt.MapClaims)
 		email := claims["email"].(string)
-		user, err := repo.ByEmail(email)
+		user, err := repo.GetUserByEmail(email)
 		if err == models.ErrNotFound {
 			return
 		} else if err != nil {

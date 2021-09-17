@@ -3,12 +3,12 @@ package users
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"tung.gallery/internal/dt/dto/user_dto"
+	"tung.gallery/internal/dt/dto/userdto"
 	"tung.gallery/internal/pkg"
 )
 
 func (u *userHandler) Login(c *gin.Context) {
-	req := &user_dto.UserLoginRequest{}
+	req := &userdto.UserLoginRequest{}
 	err := c.ShouldBind(req)
 
 	if err != nil {

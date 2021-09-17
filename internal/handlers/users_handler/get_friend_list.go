@@ -16,7 +16,7 @@ func (u *userHandler) GetUserFriendList(c *gin.Context) {
 		return
 	}
 
-	res, err := u.Services.GetFriendList(uint(id))
+	res, err := u.Services.GetFriendList(int64(id))
 	if err != nil {
 		pkg.ResponseErrorJSON(c, http.StatusInternalServerError, err.Error())
 		return

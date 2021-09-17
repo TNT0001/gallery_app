@@ -2,7 +2,7 @@ package dto
 
 type (
 	BaseResponse struct {
-		Success bool `json:"success,required"`
+		Success bool `json:"success"`
 		DataMsg
 		ErrorMsg
 	}
