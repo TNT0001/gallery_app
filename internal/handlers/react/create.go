@@ -9,7 +9,7 @@ import (
 	"tung.gallery/pkg/utils"
 )
 
-func (h *reactHandler) CreateReact(c *gin.Context) {
+func (h *ReactHandler) CreateReact(c *gin.Context) {
 	user, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())

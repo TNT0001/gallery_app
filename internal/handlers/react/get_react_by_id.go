@@ -8,7 +8,7 @@ import (
 	"tung.gallery/internal/pkg"
 )
 
-func (h *reactHandler) GetReact(c *gin.Context) {
+func (h *ReactHandler) GetReact(c *gin.Context) {
 	reactIDString, ok := c.Params.Get("id")
 	if !ok {
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "missing param react id")

@@ -40,7 +40,7 @@ func (r *reactRepo) ListReactByImageID(ctx context.Context, id int64) ([]*entity
 
 func (r *reactRepo) GetReactCountTotalByImageID(ctx context.Context, id int64) (int64, error) {
 	count := new(int64)
-	err := r.DB.WithContext(ctx).Where("image_id = ?", id).Count(count).Error
+	err := r.DB.WithContext(ctx).Model(&entity.React{}).Where("image_id = ?", id).Count(count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -49,7 +49,7 @@ func (r *reactRepo) GetReactCountTotalByImageID(ctx context.Context, id int64) (
 
 func (r *reactRepo) GetReactCountTotalByImageIDEachType(ctx context.Context, id int64) ([]*reactdto.TotalReactIDCountByType, error) {
 	totalReact := make([]*reactdto.TotalReactIDCountByType, 0)
-	err := r.DB.Model(&entity.React{}).WithContext(ctx).Select("type_id, count(id) as total").Where("image_id = ?", id).
+	err := r.DB.Model(&entity.React{}).Model(&entity.React{}).WithContext(ctx).Select("type_id, count(id) as total").Where("image_id = ?", id).
 		Group("type_id").Find(&totalReact).Error
 	if err != nil {
 		return nil, err
@@ -80,4 +80,9 @@ func (r *reactRepo) GetTypeReact(ctx context.Context) ([]*entity.ReactType, erro
 		return nil, err
 	}
 	return reactTypes, nil
+}
+
+func (r *reactRepo) DeleteReactByUserAndImageID(ctx context.Context, userID, imageID int64) error {
+	return r.DB.Unscoped().WithContext(ctx).Where(`image_id = ? and user_id = ?`, imageID, userID).
+		Delete(&entity.React{}).Error
 }

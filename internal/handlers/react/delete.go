@@ -9,7 +9,7 @@ import (
 	"tung.gallery/pkg/utils"
 )
 
-func (h *reactHandler) DeleteReact(c *gin.Context) {
+func (h *ReactHandler) DeleteReact(c *gin.Context) {
 	user, err := utils.GetUserFromContext(c)
 	if err != nil {
 		log.Println(err.Error())

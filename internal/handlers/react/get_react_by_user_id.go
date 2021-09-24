@@ -8,7 +8,7 @@ import (
 	"tung.gallery/internal/pkg"
 )
 
-func (h *reactHandler) GetReactByUserID(c *gin.Context) {
+func (h *ReactHandler) GetReactByUserID(c *gin.Context) {
 	userIDString, ok := c.Params.Get("id")
 	if !ok {
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "missing param user id")

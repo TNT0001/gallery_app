@@ -15,4 +15,5 @@ type ReactRepositoryInterface interface {
 	GetReactByID(ctx context.Context, id int64) (*entity.React, error)
 	DeleteReact(ctx context.Context, id int64) error
 	GetTypeReact(ctx context.Context) ([]*entity.ReactType, error)
+	DeleteReactByUserAndImageID(ctx context.Context, userID, imageID int64) error
 }

@@ -14,10 +14,10 @@ type ImagesServiceInterface interface {
 }
 
 type imageService struct {
-	Repo repo.GalleryRepository
+	Repo repo.Repo
 }
 
-func NewImageService(r repo.GalleryRepository) *imageService {
+func NewImageService(r repo.Repo) *imageService {
 	return &imageService{
 		Repo: r,
 	}

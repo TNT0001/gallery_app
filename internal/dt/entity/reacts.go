@@ -16,7 +16,7 @@ func (e *React) TableName() string {
 	return reactsTableName
 }
 
-var reactTypeTableName = "reacts"
+var reactTypeTableName = "react_types"
 
 type ReactType struct {
 	Type string `gorm:"column:type"`

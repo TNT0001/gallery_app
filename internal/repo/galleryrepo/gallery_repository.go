@@ -24,7 +24,7 @@ func (u *galleryRepo) GetGalleryByID(id int64) (*entity.Galleries, error) {
 func (u *galleryRepo) GetGalleriesByListID(id []int64) ([]*entity.Galleries, error) {
 	gallery := make([]*entity.Galleries, 0)
 
-	err := u.DB.Where("id in ?", id).Find(gallery).Error
+	err := u.DB.Where("id in ?", id).Find(&gallery).Error
 	if err != nil {
 		return nil, err
 	}

@@ -18,10 +18,10 @@ type ReactServiceInterface interface {
 }
 
 type reactService struct {
-	Repo repo.GalleryRepository
+	Repo repo.Repo
 }
 
-func NewReactService(r repo.GalleryRepository) ReactServiceInterface {
+func NewReactService(r repo.Repo) ReactServiceInterface {
 	return &reactService{
 		Repo: r,
 	}

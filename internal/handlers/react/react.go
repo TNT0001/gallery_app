@@ -4,10 +4,10 @@ import (
 	"tung.gallery/internal/services/reactsservice"
 )
 
-type reactHandler struct {
+type ReactHandler struct {
 	Services reactsservice.ReactServiceInterface
 }
 
-func NewReactHandler(s reactsservice.ReactServiceInterface) *reactHandler {
-	return &reactHandler{Services: s}
+func NewReactHandler(s reactsservice.ReactServiceInterface) *ReactHandler {
+	return &ReactHandler{Services: s}
 }

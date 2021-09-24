@@ -2,12 +2,16 @@ package api
 
 import (
 	"log"
+	"tung.gallery/internal/handlers/comment"
 	gallerieshandler "tung.gallery/internal/handlers/galleries_handler"
 	"tung.gallery/internal/handlers/image"
+	"tung.gallery/internal/handlers/react"
 	"tung.gallery/internal/middleware"
 	"tung.gallery/internal/repo"
+	"tung.gallery/internal/services/commentservice"
 	"tung.gallery/internal/services/galleryservice"
 	"tung.gallery/internal/services/imageservice"
+	"tung.gallery/internal/services/reactsservice"
 	"tung.gallery/internal/services/userservice"
 
 	"github.com/gin-gonic/gin"
@@ -59,10 +63,10 @@ func Initialize(r *router) {
 	imageHanler := image.NewImageHandler(imageservice.NewImageService(ds))
 
 	// ReactHandler
-	//reactHandler := react.NewReactHandler(reactsservice.NewReactService(ds))
+	reactHandler := react.NewReactHandler(reactsservice.NewReactService(ds))
 
 	// CommentHandler
-	//commentHandler := comment.NewCommentHandler(commentservice.NewCommentService(ds))
+	commentHandler := comment.NewCommentHandler(commentservice.NewCommentService(ds))
 
 	// middleware
 	authorizeJWT := middleware.AuthorizeJWT(ds)
@@ -114,5 +118,32 @@ func Initialize(r *router) {
 		imageAPI.GET("/:id", imageHanler.GetImageByID)
 		imageAPI.GET("/user/:id", imageHanler.GetImageByUserID)
 		imageAPI.GET("/gallery/:id", imageHanler.GetImageByGalleryID)
+	}
+
+	commentAPI := r.Engine.Group("/comment")
+	commentAPI.Use(authorizeJWT)
+	{
+		commentAPI.POST("/create", commentHandler.CreateComment)
+		commentAPI.PUT("/edit/", commentHandler.EditComment)
+		commentAPI.GET("/:id", commentHandler.GetComment)
+		commentAPI.GET("/user/:id", commentHandler.GetCommentListByUserID)
+		commentAPI.GET("image/:id", commentHandler.GetCommentListByImageID)
+	}
+
+	reactAPI := r.Engine.Group("/react")
+	reactAPI.Use(authorizeJWT)
+	reactRoute(reactAPI, reactHandler)
+}
+
+func reactRoute(r *gin.RouterGroup, h *react.ReactHandler) {
+	{
+		r.POST("/create", h.CreateReact)
+		r.GET("/:id", h.GetReact)
+		r.GET("/user/:id", h.GetReactByUserID)
+		r.GET("/image/:id", h.GetReactByImageID)
+		r.GET("/total_by_image/:id", h.GetReactCountByImageID)
+		r.GET("/total_each_type_by_image/:id", h.GetReactCountEachTypeByImageID)
+		r.DELETE("/delete/:id", h.DeleteReact)
+		r.GET("/react_type", h.GetReactType)
 	}
 }

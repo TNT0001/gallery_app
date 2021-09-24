@@ -8,7 +8,7 @@ import (
 	"tung.gallery/internal/pkg"
 )
 
-func (h *reactHandler) GetReactCountByImageID(c *gin.Context) {
+func (h *ReactHandler) GetReactCountByImageID(c *gin.Context) {
 	imageIDString, ok := c.Params.Get("id")
 	if !ok {
 		pkg.ResponseErrorJSON(c, http.StatusBadRequest, "missing param image id")

@@ -43,6 +43,7 @@ func (s *reactService) GetReactByUserID(ctx context.Context, userID int64) (*rea
 		reacts = append(reacts, &reactdto.GetReactByIDResponse{
 			Type:    reactMap[r.TypeID],
 			ImageID: r.ImageID,
+			UserID:  userID,
 		})
 	}
 
@@ -128,5 +129,6 @@ func (s *reactService) GetReactMap(ctx context.Context) (map[int64]string, error
 		reactMap[int64(r.ID)] = r.Type
 	}
 
+	log.Println(reactMap)
 	return reactMap, nil
 }

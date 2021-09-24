@@ -16,10 +16,10 @@ type CommentServiceInterface interface {
 }
 
 type commentService struct {
-	Repo repo.GalleryRepository
+	Repo repo.Repo
 }
 
-func NewCommentService(r repo.GalleryRepository) *commentService {
+func NewCommentService(r repo.Repo) *commentService {
 	return &commentService{
 		r,
 	}
